@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\ServerAPI\ServerAPI.csproj" />
+      <ProjectReference Include="..\Webapp\Webapp.csproj" />
+    </ItemGroup>
+
 </Project>
