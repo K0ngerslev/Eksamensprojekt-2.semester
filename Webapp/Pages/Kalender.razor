@@ -1,6 +1,218 @@
 @page "/Kalender"
-<h3>Kalender</h3>
+@using System.ComponentModel.DataAnnotations
+@using Core.Model
+
+<PageTitle>Kalender</PageTitle>
+
+<div class="activity-page">
+    <div class="activity-page__header">
+        <div>
+            <h1>Aktiviteter</h1>
+            <p>Her kan du se og oprette holdets aktiviteter.</p>
+        </div>
+
+        <button type="button" class="activity-page__add-button" @onclick="OpenAddDialog">
+            Tilføj aktivitet
+        </button>
+    </div>
+
+    @if (aktiviteter.Count == 0)
+    {
+        <div class="activity-page__empty-state">
+            Ingen aktiviteter endnu. Tryk på <strong>Tilføj aktivitet</strong> for at oprette den første.
+        </div>
+    }
+    else
+    {
+        <div class="activity-page__list">
+            @foreach (var aktivitet in aktiviteter.OrderBy(a => a.Date).ThenBy(a => a.Time))
+            {
+                <article class="activity-card">
+                    <div class="activity-card__top">
+                        <h3>@aktivitet.ActivityType</h3>
+                        <span>@FormatDate(aktivitet.Date) kl. @FormatTime(aktivitet.Time)</span>
+                    </div>
+
+                    <div class="activity-card__details">
+                        <p><strong>Sted:</strong> @aktivitet.FieldOrLocation</p>
+
+                        @if (!string.IsNullOrWhiteSpace(aktivitet.ChangingRoom))
+                        {
+                            <p><strong>Omklædning:</strong> @aktivitet.ChangingRoom</p>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(aktivitet.AdditionalNotes))
+                        {
+                            <p><strong>Noter:</strong> @aktivitet.AdditionalNotes</p>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</div>
+
+@if (isDialogOpen)
+{
+    <div class="activity-modal-backdrop" @onclick="CloseAddDialog">
+        <div class="activity-modal" @onclick:stopPropagation="true">
+            <div class="activity-modal__header">
+                <h2>Tilføj aktivitet</h2>
+                <button type="button" class="activity-modal__close" @onclick="CloseAddDialog">×</button>
+            </div>
+
+            @if (validationErrors.Count > 0)
+            {
+                <div class="activity-modal__errors">
+                    @foreach (var error in validationErrors)
+                    {
+                        <p>@error</p>
+                    }
+                </div>
+            }
+
+            <EditForm Model="draftAktivitet" OnSubmit="HandleSubmitAsync">
+                <div class="activity-modal__body">
+                    <div class="activity-form__group">
+                        <label for="activity-type">Aktivitetstype</label>
+                        <InputText id="activity-type" class="form-control" @bind-Value="draftAktivitet.ActivityType" />
+                    </div>
+
+                    <div class="activity-form__row">
+                        <div class="activity-form__group">
+                            <label for="activity-date">Dato</label>
+                            <input id="activity-date" class="form-control" type="date" value="@draftDate" @onchange="HandleDateChanged" />
+                        </div>
+
+                        <div class="activity-form__group">
+                            <label for="activity-time">Tid</label>
+                            <input id="activity-time" class="form-control" type="time" value="@draftTime" @onchange="HandleTimeChanged" />
+                        </div>
+                    </div>
+
+                    <div class="activity-form__group">
+                        <label for="activity-location">Bane / sted</label>
+                        <InputText id="activity-location" class="form-control" @bind-Value="draftAktivitet.FieldOrLocation" />
+                    </div>
+
+                    <div class="activity-form__group">
+                        <label for="activity-changing-room">Omklædningsrum</label>
+                        <InputText id="activity-changing-room" class="form-control" @bind-Value="draftAktivitet.ChangingRoom" />
+                    </div>
+
+                    <div class="activity-form__group">
+                        <label for="activity-notes">Yderligere noter</label>
+                        <InputTextArea id="activity-notes" class="form-control" @bind-Value="draftAktivitet.AdditionalNotes" />
+                    </div>
+                </div>
+
+                <div class="activity-modal__actions">
+                    <button type="button" class="activity-modal__secondary-button" @onclick="CloseAddDialog">Annuller</button>
+                    <button type="submit" class="activity-modal__primary-button">Gem aktivitet</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
 
 @code {
-    
+    private readonly List<Aktivitet> aktiviteter = new();
+    private readonly List<string> validationErrors = new();
+
+    private Aktivitet draftAktivitet = new();
+    private bool isDialogOpen;
+    private string? draftDate;
+    private string? draftTime;
+
+    protected override void OnInitialized()
+    {
+        ResetDraft();
+    }
+
+    private void OpenAddDialog()
+    {
+        ResetDraft();
+        isDialogOpen = true;
+    }
+
+    private void CloseAddDialog()
+    {
+        isDialogOpen = false;
+        validationErrors.Clear();
+    }
+
+    private void HandleDateChanged(ChangeEventArgs args)
+    {
+        draftDate = args.Value?.ToString();
+    }
+
+    private void HandleTimeChanged(ChangeEventArgs args)
+    {
+        draftTime = args.Value?.ToString();
+    }
+
+    private Task HandleSubmitAsync(EditContext _)
+    {
+        validationErrors.Clear();
+
+        if (!DateOnly.TryParse(draftDate, out var parsedDate))
+        {
+            validationErrors.Add("Du skal vælge en gyldig dato.");
+        }
+
+        if (!TimeOnly.TryParse(draftTime, out var parsedTime))
+        {
+            validationErrors.Add("Du skal vælge et gyldigt tidspunkt.");
+        }
+
+        if (validationErrors.Count > 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        draftAktivitet.Date = parsedDate;
+        draftAktivitet.Time = parsedTime;
+
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(draftAktivitet);
+
+        if (!Validator.TryValidateObject(draftAktivitet, context, results, validateAllProperties: true))
+        {
+            validationErrors.AddRange(results.Select(result => result.ErrorMessage).OfType<string>());
+            return Task.CompletedTask;
+        }
+
+        aktiviteter.Add(new Aktivitet
+        {
+            ActivityType = draftAktivitet.ActivityType,
+            Date = draftAktivitet.Date,
+            Time = draftAktivitet.Time,
+            FieldOrLocation = draftAktivitet.FieldOrLocation,
+            ChangingRoom = draftAktivitet.ChangingRoom,
+            AdditionalNotes = draftAktivitet.AdditionalNotes
+        });
+
+        CloseAddDialog();
+        ResetDraft();
+
+        return Task.CompletedTask;
+    }
+
+    private void ResetDraft()
+    {
+        draftAktivitet = new Aktivitet();
+        draftDate = DateTime.Today.ToString("yyyy-MM-dd");
+        draftTime = DateTime.Now.ToString("HH:mm");
+        validationErrors.Clear();
+    }
+
+    private static string FormatDate(DateOnly? date)
+    {
+        return date?.ToString("dd/MM/yyyy") ?? "-";
+    }
+
+    private static string FormatTime(TimeOnly? time)
+    {
+        return time?.ToString("HH:mm") ?? "-";
+    }
 }

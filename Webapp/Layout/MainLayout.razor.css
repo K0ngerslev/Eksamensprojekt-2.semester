@@ -2,11 +2,35 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+    background-image: url("https://editorial.uefa.com/resources/029a-1e097a929435-eca4c9d870b1-1000/sevilla_fc_v_as_roma_-_uefa_europa_league_final_2022_23.jpeg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 main {
     flex: 1;
 }
+
+article {
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+    article ::deep h1,
+    article ::deep h2,
+    article ::deep h3,
+    article ::deep h4,
+    article ::deep h5,
+    article ::deep h6,
+    article ::deep p,
+    article ::deep label,
+    article ::deep span,
+    article ::deep li {
+        color: #fff;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+    }
 
 .sidebar {
     background-color: rgba(7, 181, 60, 0.72);
