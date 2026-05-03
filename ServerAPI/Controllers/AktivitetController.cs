@@ -126,47 +126,42 @@ public class AktivitetController : ControllerBase
         // Tjekker at aktivitetstypen er udfyldt.
         if (string.IsNullOrWhiteSpace(aktivitet.ActivityType))
         {
-            ModelState.AddModelError(nameof(aktivitet.ActivityType), "ActivityType is required.");
+            ModelState.AddModelError(nameof(aktivitet.ActivityType), "Aktivitetstype mangler.");
         }
         // Tjekker at aktivitetstypen holder sig inden for den tilladte længde.
         else if (aktivitet.ActivityType.Length is < 2 or > 50)
         {
-            ModelState.AddModelError(nameof(aktivitet.ActivityType), "ActivityType must be between 2 and 50 characters.");
+            ModelState.AddModelError(nameof(aktivitet.ActivityType), "Activitetstypen skal være mellem 2 og 50 tegn.");
         }
 
         // Tjekker at der er valgt en dato.
         if (aktivitet.Date is null)
         {
-            ModelState.AddModelError(nameof(aktivitet.Date), "Date is required.");
+            ModelState.AddModelError(nameof(aktivitet.Date), "Date mangler.");
         }
 
         // Tjekker at der er valgt et tidspunkt.
         if (aktivitet.Time is null)
         {
-            ModelState.AddModelError(nameof(aktivitet.Time), "Time is required.");
+            ModelState.AddModelError(nameof(aktivitet.Time), "Tidspunkt mangler.");
         }
 
         // Tjekker at sted/bane er udfyldt.
         if (string.IsNullOrWhiteSpace(aktivitet.FieldOrLocation))
         {
-            ModelState.AddModelError(nameof(aktivitet.FieldOrLocation), "FieldOrLocation is required.");
-        }
-        // Tjekker at sted/bane holder sig inden for den tilladte længde.
-        else if (aktivitet.FieldOrLocation.Length is < 2 or > 100)
-        {
-            ModelState.AddModelError(nameof(aktivitet.FieldOrLocation), "FieldOrLocation must be between 2 and 100 characters.");
+            ModelState.AddModelError(nameof(aktivitet.FieldOrLocation), "Bane mangler");
         }
 
         // Tjekker at omklædningsrum ikke er for langt.
         if (aktivitet.ChangingRoom?.Length > 100)
         {
-            ModelState.AddModelError(nameof(aktivitet.ChangingRoom), "ChangingRoom cannot be longer than 100 characters.");
+            ModelState.AddModelError(nameof(aktivitet.ChangingRoom), "Omklædningrum må ikke fylde mere end 100 tegn.");
         }
 
         // Tjekker at ekstra noter ikke er for lange.
         if (aktivitet.AdditionalNotes?.Length > 500)
         {
-            ModelState.AddModelError(nameof(aktivitet.AdditionalNotes), "AdditionalNotes cannot be longer than 500 characters.");
+            ModelState.AddModelError(nameof(aktivitet.AdditionalNotes), "Noter må ikke være mere end 500 tegn.");
         }
 
         // Returnerer enten null ved gyldig model eller en samlet valideringsfejl.
