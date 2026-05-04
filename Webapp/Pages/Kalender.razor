@@ -152,7 +152,7 @@
         draftTime = args.Value?.ToString();
     }
 
-    private Task HandleSubmitAsync(EditContext _)
+    private async Task HandleSubmitAsync(EditContext _)
     {
         validationErrors.Clear();
 
@@ -168,7 +168,7 @@
 
         if (validationErrors.Count > 0)
         {
-            return Task.CompletedTask;
+            return;
         }
 
         draftAktivitet.Date = parsedDate;
@@ -180,10 +180,10 @@
         if (!Validator.TryValidateObject(draftAktivitet, context, results, validateAllProperties: true))
         {
             validationErrors.AddRange(results.Select(result => result.ErrorMessage).OfType<string>());
-            return Task.CompletedTask;
+            return;
         }
 
-        aktiviteter.Add(new Aktivitet
+        var ak = new Aktivitet
         {
             ActivityType = draftAktivitet.ActivityType,
             Date = draftAktivitet.Date,
@@ -191,12 +191,13 @@
             FieldOrLocation = draftAktivitet.FieldOrLocation,
             ChangingRoom = draftAktivitet.ChangingRoom,
             AdditionalNotes = draftAktivitet.AdditionalNotes
-        });
+        };
+        await aktivitetApiService.AddAsync(ak);
+        aktiviteter.Add(ak);
 
         CloseAddDialog();
         ResetDraft();
-
-        return Task.CompletedTask;
+        
     }
 
     private void ResetDraft()

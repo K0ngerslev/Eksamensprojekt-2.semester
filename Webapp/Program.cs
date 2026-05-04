@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Eksamensprojekt_2.semester;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
+using WebApp.Service;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -12,5 +13,5 @@ builder.Services.AddBlazoredSessionStorage();
 
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
+builder.Services.AddScoped<AktivitetApiService>();
 await builder.Build().RunAsync();
