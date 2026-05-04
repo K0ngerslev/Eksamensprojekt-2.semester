@@ -1,0 +1,56 @@
+@using Blazored.SessionStorage
+@using Core.Model
+@using WebApp.Service
+@inject LoginService LoginService
+@inject ISessionStorageService SessionStorage 
+@inject NavigationManager Nav
+
+@if (canShowPage)
+{
+    <RouteView RouteData="@RouteData" DefaultLayout="@DefaultLayout" />
+}
+
+@code {
+    [Parameter]
+    public RouteData RouteData { get; set; } = default!;
+
+    [Parameter]
+    public Type? DefaultLayout { get; set; }
+
+    private bool canShowPage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        canShowPage = false;
+
+        if (IsLoginPage())
+        {
+            canShowPage = true;
+            return;
+        }
+
+        if (LoginService.IsLoggedIn)
+        {
+            canShowPage = true;
+            return;
+        }
+
+        var storedUser = await SessionStorage.GetItemAsync<User>("user");
+        if (storedUser is not null)
+        {
+            LoginService.SetCurrentUser(storedUser);
+            canShowPage = true;
+            return;
+        }
+
+        var returnUrl = Nav.ToBaseRelativePath(Nav.Uri);
+        Nav.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(returnUrl)}");
+    }
+
+    private bool IsLoginPage()
+    {
+        var path = Nav.ToBaseRelativePath(Nav.Uri).Split('?', '#')[0].Trim('/');
+        return string.Equals(path, "login", StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(path, "opret-bruger", StringComparison.OrdinalIgnoreCase);
+    }
+}
