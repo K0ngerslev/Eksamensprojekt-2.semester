@@ -12,9 +12,11 @@ public class AktivitetRepository : IAktivitet
     private readonly IMongoCollection<Aktivitet> _aktiviteter;
 
     // Constructor henter den rigtige collection fra databasen.
-    public AktivitetRepository(IMongoDatabase database)
+    public AktivitetRepository()
     {
-        _aktiviteter = database.GetCollection<Aktivitet>(CollectionName);
+        var client = new MongoClient("mongodb+srv://kongersleva_db_user:ctxdw7xMeDXa6BXQ@annoncer.calyub8.mongodb.net/");
+        var database = client.GetDatabase("Eksamensprojekt");
+        _aktiviteter = database.GetCollection<Aktivitet>("Annoncer");
     }
 
     // Returnerer alle aktiviteter fra collectionen.
