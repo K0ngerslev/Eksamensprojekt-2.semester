@@ -14,9 +14,10 @@ public class AktivitetRepository : IAktivitet
     // Constructor henter den rigtige collection fra databasen.
     public AktivitetRepository()
     {
-        var client = new MongoClient("mongodb+srv://kongersleva_db_user:ctxdw7xMeDXa6BXQ@annoncer.calyub8.mongodb.net/");
+        // var client = new MongoClient("mongodb+srv://kongersleva_db_user:ctxdw7xMeDXa6BXQ@annoncer.calyub8.mongodb.net/");
+        var client = new MongoClient("mongodb://localhost:27017");
         var database = client.GetDatabase("Eksamensprojekt");
-        _aktiviteter = database.GetCollection<Aktivitet>("Annoncer");
+        _aktiviteter = database.GetCollection<Aktivitet>("Aktiviteter");
     }
 
     // Returnerer alle aktiviteter fra collectionen.

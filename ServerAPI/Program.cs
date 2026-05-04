@@ -5,13 +5,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // tilføj mongoDB services nedenunder!!!
 
-var connectionString = builder.Configuration.GetConnectionString("MongoDb")
+/*var connectionString = builder.Configuration.GetConnectionString("MongoDb")
     ?? throw new InvalidOperationException("Connection string 'MongoDb' is not configured.");
 var databaseName = builder.Configuration["MongoDb:DatabaseName"]
     ?? throw new InvalidOperationException("MongoDb:DatabaseName is not configured.");
 
 builder.Services.AddSingleton<IMongoClient>(_ => new MongoClient(connectionString));
+
 builder.Services.AddScoped(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(databaseName));
+*/
 builder.Services.AddScoped<IAktivitet, AktivitetRepository>();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
