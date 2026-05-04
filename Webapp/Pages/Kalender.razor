@@ -125,9 +125,11 @@
     private string? draftDate;
     private string? draftTime;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         ResetDraft();
+        var loaded = await aktivitetApiService.GetAllAsync();
+        aktiviteter.AddRange(loaded);
     }
 
     private void OpenAddDialog()
