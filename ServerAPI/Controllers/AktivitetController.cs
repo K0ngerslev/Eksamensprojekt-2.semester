@@ -137,7 +137,7 @@ public class AktivitetController : ControllerBase
         // Tjekker at der er valgt en dato.
         if (aktivitet.Date is null)
         {
-            ModelState.AddModelError(nameof(aktivitet.Date), "Date mangler.");
+            ModelState.AddModelError(nameof(aktivitet.Date), "Dato mangler.");
         }
 
         // Tjekker at der er valgt et tidspunkt.

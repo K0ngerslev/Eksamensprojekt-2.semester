@@ -1,5 +1,4 @@
 @page "/Kalender"
-@using System.ComponentModel.DataAnnotations
 @using Core.Model
 @inject WebApp.Service.AktivitetApiService aktivitetApiService
 
@@ -177,15 +176,7 @@
 
         draftAktivitet.Date = parsedDate;
         draftAktivitet.Time = parsedTime;
-
-        var results = new List<ValidationResult>();
-        var context = new ValidationContext(draftAktivitet);
-
-        if (!Validator.TryValidateObject(draftAktivitet, context, results, validateAllProperties: true))
-        {
-            validationErrors.AddRange(results.Select(result => result.ErrorMessage).OfType<string>());
-            return;
-        }
+        NormalizeDraft();
 
         var ak = new Aktivitet
         {
@@ -196,7 +187,13 @@
             ChangingRoom = draftAktivitet.ChangingRoom,
             AdditionalNotes = draftAktivitet.AdditionalNotes
         };
-        await aktivitetApiService.AddAsync(ak);
+        var response = await aktivitetApiService.AddAsync(ak);
+        if (!response.IsSuccessStatusCode)
+        {
+            validationErrors.Add(await response.Content.ReadAsStringAsync());
+            return;
+        }
+
         aktiviteter.Add(ak);
 
         CloseAddDialog();
@@ -210,6 +207,18 @@
         draftDate = DateTime.Today.ToString("yyyy-MM-dd");
         draftTime = DateTime.Now.ToString("HH:mm");
         validationErrors.Clear();
+    }
+
+    private void NormalizeDraft()
+    {
+        draftAktivitet.ActivityType = draftAktivitet.ActivityType?.Trim();
+        draftAktivitet.FieldOrLocation = draftAktivitet.FieldOrLocation?.Trim();
+        draftAktivitet.ChangingRoom = string.IsNullOrWhiteSpace(draftAktivitet.ChangingRoom)
+            ? null
+            : draftAktivitet.ChangingRoom.Trim();
+        draftAktivitet.AdditionalNotes = string.IsNullOrWhiteSpace(draftAktivitet.AdditionalNotes)
+            ? null
+            : draftAktivitet.AdditionalNotes.Trim();
     }
 
     private static string FormatDate(DateOnly? date)
