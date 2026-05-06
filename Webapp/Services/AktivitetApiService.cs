@@ -22,6 +22,16 @@ public class AktivitetApiService
         return _httpClient.PostAsJsonAsync("http://localhost:5243/api/Aktivitet", aktivitet);
     }
 
+    public Task<HttpResponseMessage> UpdateAsync(string id, Aktivitet aktivitet)
+    {
+        return _httpClient.PutAsJsonAsync($"http://localhost:5243/api/Aktivitet/{id}", aktivitet);
+    }
+
+    public Task<HttpResponseMessage> DeleteAsync(string id)
+    {
+        return _httpClient.DeleteAsync($"http://localhost:5243/api/Aktivitet/{id}");
+    }
+
     public static async Task<List<Aktivitet>?> Httpclient()
     {
         throw new NotImplementedException();
