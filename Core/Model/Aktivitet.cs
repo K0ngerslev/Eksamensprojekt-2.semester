@@ -29,4 +29,9 @@ public class Aktivitet
 
     // Indeholder ekstra noter til aktiviteten.
     public string? AdditionalNotes { get; set; }
+    public object Name { get; set; }
+    public object Description { get; set; }
+    public object PublishedDate { get; set; }
+
+    public static string? CreatedBy { get; set; }
 }

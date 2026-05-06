@@ -21,4 +21,9 @@ public class AktivitetApiService
     {
         return _httpClient.PostAsJsonAsync("http://localhost:5243/api/Aktivitet", aktivitet);
     }
+
+    public static async Task<List<Aktivitet>?> Httpclient()
+    {
+        throw new NotImplementedException();
+    }
 }

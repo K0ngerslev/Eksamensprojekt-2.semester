@@ -6,37 +6,35 @@
 @inject NavigationManager navManager
 @inject ILocalStorageService localStorage
 @inject ISessionStorageService sessionStorage
-@inject LoginService loginService
 <PageTitle>Log ind</PageTitle>
 
 <h3>Log ind</h3>
 
-    <div class="login-container">
+<div class="login-container">
 
-        <InputText @bind-Value="username" 
-                   class="form-control mb-2"
-                   placeholder="Indtast brugernavn"/>
+    <InputText @bind-Value="username" 
+               class="form-control mb-2"
+               placeholder="Indtast brugernavn"/>
             
 
-                <InputText
-                           type="password"
-                           class="form-control mb-2"
-                           @bind-Value="password"
-                           placeholder="Indtast password"/>
+    <InputText
+        type="password"
+        class="form-control mb-2"
+        @bind-Value="password"
+        placeholder="Indtast password"/>
             
-            <div style="text-align: center">
-                <button class="btn btn-primary" @onclick="OnClickLogin">Login</button>
-                <button class="btn btn-primary" @onclick="OnClick">Opret bruger</button>
-            </div>
-
-        @if (!string.IsNullOrEmpty(errorText))
-        {
-            <div class="error-message">
-                <span class="error-icon">⚠️</span>
-                <span class="error-text">@errorText</span>
-            </div>
-        }
+    <div style="text-align: center">
+        <button class="btn btn-primary" @onclick="OnClickLogin">Login</button>
     </div>
+
+    @if (!string.IsNullOrEmpty(errorText))
+    {
+        <div class="error-message">
+            <span class="error-icon">⚠️</span>
+            <span class="error-text">@errorText</span>
+        </div>
+    }
+</div>
 
 
 @code {
@@ -46,26 +44,19 @@
     
     //Bruges til at vise errortext hvis relevant
     string errorText = "";
-
-    [SupplyParameterFromQuery(Name = "returnUrl")]
-    public string? ReturnUrl { get; set; }
     
     private async Task OnClickLogin()  {
+        LoginService loginService = new();
         User? loggedIn = loginService.ValidLogin(username, password);
         if (loggedIn != null)
         {
             await sessionStorage.SetItemAsync("user", loggedIn);
 
-            navManager.NavigateTo(string.IsNullOrWhiteSpace(ReturnUrl) ? "/" : ReturnUrl);
+            navManager.NavigateTo("/", true);
         }
         else
         {
-            errorText = "Forkert brugernavn eller adgangskode, prøv igen ...";
+            errorText = "Wrong email or password - try again...";
         }
-    }
-
-    private void OnClick()
-    {
-        navManager.NavigateTo("opret-bruger");
     }
 }

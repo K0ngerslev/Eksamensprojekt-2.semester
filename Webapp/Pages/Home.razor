@@ -1,4 +1,10 @@
 ﻿@page "/"
+@using Blazored.SessionStorage
+@using WebApp.Service
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject ISessionStorageService sessionStorage
+@inject NavigationManager nav
+@inject LoginService loginService
 
 <PageTitle>HoldHub</PageTitle>
 
