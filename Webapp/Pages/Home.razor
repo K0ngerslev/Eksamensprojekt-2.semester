@@ -12,34 +12,15 @@
 
 <h1>Fantasihold FC</h1>
 
-@if (loggedInUser != null && loggedInUser.Role == "admin")
-{
-    <button @onclick="Aktivitet">Click me</button>
-    
-}
-
 @code {
-    User? loggedInUser;
 
     protected override async Task OnInitializedAsync()
     {
-        loggedInUser = await sessionStorage.GetItemAsync<User?>("user");
-        if (loggedInUser == null)
+        var loggedIn = LoginService.CurrentUser ?? await sessionStorage.GetItemAsync<User?>("user");
+        if (loggedIn is null)
         {
-            object navMan = null;
-            navMan.Equals("login");
+            Nav.NavigateTo("login");
         }
-
-        // other stuff
-
-
-    }
-
-    public int? Await { get; set; }
-
-    private void Aktivitet()
-    {
-        throw new NotImplementedException();
     }
 
 }

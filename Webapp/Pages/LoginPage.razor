@@ -50,9 +50,10 @@
         User? loggedIn = loginService.ValidLogin(username, password);
         if (loggedIn != null)
         {
+            loginService.SetCurrentUser(loggedIn);
             await sessionStorage.SetItemAsync("user", loggedIn);
 
-            navManager.NavigateTo("/", true);
+            navManager.NavigateTo("/" );
         }
         else
         {
