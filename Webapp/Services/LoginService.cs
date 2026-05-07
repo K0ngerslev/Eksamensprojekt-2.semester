@@ -1,40 +1,47 @@
 using Core.Model;
 
+
 namespace WebApp.Service;
 
 public class LoginService
 {
-    private List<User> mUsers;
-    
+    private readonly List<User> mUsers;
+
+    public User? CurrentUser { get; private set; }
+    public bool IsLoggedIn => CurrentUser is not null;
+//Login user
     public LoginService()
     {
         mUsers = [
-            new User { Name = "Træner", Password = "1234", Role = "admin" },
-            new User { Name = "Spiller1", Password = "2345", Role="Normal"},
+            new User { Name = "Træner", Password = "1234", Role = "træner" },
+            new User { Name = "Spiller", Password = "2345", Role="Spiller"},
         ];
     }
 
-    public bool IsLoggedIn { get; set; }
-
-    /// <summary>
-    /// Validation of credentials
-    /// </summary>
-    /// <param name="name"></param>
-    /// <param name="password"></param>
-    /// <returns>a user object if combination of username and password is known. Otherwise,
-    /// it will return null</returns>
     public User? ValidLogin(string name, string password)
     {
-        foreach (User u in mUsers)
-            if (u.Name == name && u.Password == password)
-            {
-                return u;
-            }
-        return null;
+        var user = mUsers.FirstOrDefault(u => u.Name == name && u.Password == password);
+        CurrentUser = user;           // husk hvem der er logged ind
+        return user;
     }
 
-    public void SetCurrentUser(User storedUser)
+    public bool CreateUser(string name, string password)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(password))
+        {
+            return false;
+        }
+
+        if (mUsers.Any(u => string.Equals(u.Name, name, StringComparison.OrdinalIgnoreCase)))
+        {
+            return false;
+        }
+
+        mUsers.Add(new User { Name = name, Password = password, Role = "Normal" });
+        return true;
     }
+
+    public void SetCurrentUser(User user) => CurrentUser = user;
+
+    public void Logout() => CurrentUser = null;
 }

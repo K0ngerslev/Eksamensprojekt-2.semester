@@ -1,12 +1,52 @@
-﻿@inherits LayoutComponentBase
+﻿@using Core.Model
+@using WebApp.Service
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject LoginService loginService
+@inject NavigationManager navManager
+@inherits LayoutComponentBase
 <div class="page">
+    
     <div class="sidebar">
         <NavMenu/>
     </div>
-
+    
     <main>
+        <div class="top-row px-4 d-flex justify-content-end align-items-center gap-2">
+            <i>Logged in as: <b>@LoggedInText</b> </i>
+            @if (loggedIn is not null)
+                
+                //logudknap
+            { 
+                <button class="btn btn-outline-secondary btn-sm" @onclick="Logout">Log ud</button>
+            }
+        </div>
+
         <article class="content px-4">
             @Body
         </article>
     </main>
 </div>
+@code
+{
+    User? loggedIn;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        loggedIn = loginService.CurrentUser ?? await sessionStorage.GetItemAsync<User?>("user");
+        if (loggedIn is not null)
+        {
+            loginService.SetCurrentUser(loggedIn);
+        }
+    }
+
+    private string LoggedInText => loggedIn is null ? "none" : $"{loggedIn.Name} [{loggedIn.Role}]";
+
+    //ref til log ud knap, selve log ud function
+    private async Task Logout()
+    {
+        loginService.Logout();
+        await sessionStorage.RemoveItemAsync("user");
+        loggedIn = null;
+        navManager.NavigateTo("login");
+    }
+}

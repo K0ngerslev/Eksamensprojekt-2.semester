@@ -1,11 +1,45 @@
 ﻿@page "/"
 @using Blazored.SessionStorage
+@using Core.Model
 @using WebApp.Service
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject ISessionStorageService sessionStorage
-@inject NavigationManager nav
-@inject LoginService loginService
+@inject NavigationManager Nav
+@inject LoginService LoginService
+
 
 <PageTitle>HoldHub</PageTitle>
 
 <h1>Fantasihold FC</h1>
+
+@if (loggedInUser != null && loggedInUser.Role == "admin")
+{
+    <button @onclick="Aktivitet">Click me</button>
+    
+}
+
+@code {
+    User? loggedInUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loggedInUser = await sessionStorage.GetItemAsync<User?>("user");
+        if (loggedInUser == null)
+        {
+            object navMan = null;
+            navMan.Equals("login");
+        }
+
+        // other stuff
+
+
+    }
+
+    public int? Await { get; set; }
+
+    private void Aktivitet()
+    {
+        throw new NotImplementedException();
+    }
+
+}
