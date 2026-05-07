@@ -4,7 +4,7 @@ using MongoDB.Driver;
 namespace ServerAPI.Repositories;
 
 // Repository som håndterer læsning og skrivning af aktiviteter i MongoDB.
-public class AktivitetRepositoryRepository : IAktivitetRepository
+public class AktivitetRepository : IAktivitetRepository
 {
     // Navnet på den collection i databasen, hvor aktiviteter gemmes.
     private const string CollectionName = "Aktiviteter";
@@ -12,7 +12,7 @@ public class AktivitetRepositoryRepository : IAktivitetRepository
     private readonly IMongoCollection<Aktivitet> _aktiviteter;
 
     // Constructor henter den rigtige collection fra databasen.
-    public AktivitetRepositoryRepository()
+    public AktivitetRepository()
     {
         // var client = new MongoClient("mongodb+srv://kongersleva_db_user:ctxdw7xMeDXa6BXQ@annoncer.calyub8.mongodb.net/");
         var client = new MongoClient("mongodb://localhost:27017");

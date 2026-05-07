@@ -3,7 +3,7 @@ using ServerAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IAktivitetRepository, AktivitetRepositoryRepository>();
+builder.Services.AddScoped<IAktivitetRepository, AktivitetRepository>();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
