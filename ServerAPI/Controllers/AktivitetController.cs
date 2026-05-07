@@ -10,10 +10,10 @@ namespace ServerAPI.Controllers;
 public class AktivitetController : ControllerBase
 {
     // Repository bruges til at hente og gemme aktiviteter i databasen.
-    private readonly IAktivitet _repo;
+    private readonly IAktivitetRepository _repo;
 
     // Constructor injicerer repositoryet, så controlleren kan bruge det i endpoints.
-    public AktivitetController(IAktivitet repo)
+    public AktivitetController(IAktivitetRepository repo)
     {
         _repo = repo;
     }
