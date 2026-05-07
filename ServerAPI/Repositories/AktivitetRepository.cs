@@ -15,9 +15,9 @@ public class AktivitetRepository : IAktivitetRepository
     public AktivitetRepository()
     {
         // var client = new MongoClient("mongodb+srv://kongersleva_db_user:ctxdw7xMeDXa6BXQ@annoncer.calyub8.mongodb.net/");
-        var client = new MongoClient("mongodb+srv://Konger:And12reas@holdhubcluster.h21fepf.mongodb.net/");
+        var client = new MongoClient("mongodb://localhost:27017/");
         var database = client.GetDatabase("Eksamensprojekt");
-        _aktiviteter = database.GetCollection<Aktivitet>("Eksamensprojekt");
+        _aktiviteter = database.GetCollection<Aktivitet>("Aktiviteter");
     }
 
     // Returnerer alle aktiviteter fra collectionen.
