@@ -35,6 +35,7 @@
             return;
         }
 
+        // Restore the user from session storage after a refresh before redirecting to login.
         var storedUser = await SessionStorage.GetItemAsync<User>("user");
         if (storedUser is not null)
         {

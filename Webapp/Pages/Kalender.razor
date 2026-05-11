@@ -2,6 +2,9 @@
 @using System.Net.Http.Json
 @using Core.Model
 @inject WebApp.Service.AktivitetApiService aktivitetApiService
+@inject WebApp.Service.ParticipationApiService participationApiService
+@inject WebApp.Service.LoginService LoginService 
+
 
 <PageTitle>Kalender</PageTitle>
 
@@ -51,6 +54,25 @@
                     <div class="activity-card__actions">
                         <button type="button" class="activity-card__button" @onclick="() => OpenEditDialog(aktivitet)">Rediger</button>
                         <button type="button" class="activity-card__button activity-card__button--danger" @onclick="() => DeleteAktivitetAsync(aktivitet)">Slet</button>
+                    </div>
+                    <div class="activity-card__actions">
+                        <button type="button" class="activity-card__button" @onclick="() => OpenEditDialog(aktivitet)">Rediger</button>
+                        <button type="button" class="activity-card__button activity-card__button--danger" @onclick="() => DeleteAktivitetAsync(aktivitet)">Slet</button>
+
+                        @if (aktivitet.Id is not null)
+                        {
+                            var answer = _myAnswers.GetValueOrDefault(aktivitet.Id);
+                            <button type="button"
+                                    class="activity-card__button @(answer == true ? "attend--yes" : "")"
+                                    @onclick="() => SetAttending(aktivitet.Id!, true)">
+                                ✅ Deltager
+                            </button>
+                            <button type="button"
+                                    class="activity-card__button @(answer == false ? "attend--no" : "")"
+                                    @onclick="() => SetAttending(aktivitet.Id!, false)">
+                                ❌ Deltager ikke
+                            </button>
+                        }
                     </div>
                 </article>
             }
@@ -124,7 +146,9 @@
 @code {
     private readonly List<Aktivitet> aktiviteter = new();
     private readonly List<string> validationErrors = new();
-
+    // activity id -> this user's answer; null means no answer yet
+    private readonly Dictionary<string, bool?> _myAnswers = new();
+    
     private Aktivitet draftAktivitet = new();
     private bool isDialogOpen;
     private bool isEditing;
@@ -139,7 +163,21 @@
         ResetDraft();
         var loaded = await aktivitetApiService.GetAllAsync();
         aktiviteter.AddRange(loaded);
+
+        // Load current user's answers for all activities
+        var userName = LoginService.CurrentUser?.Name;
+        if (userName is not null)
+        {
+            // Fetch each activity's attendance list and keep only the current user's answer.
+            foreach (var a in aktiviteter.Where(a => a.Id is not null))
+            {
+                var participations = await participationApiService.GetByAktivitetIdAsync(a.Id!);
+                var mine = participations.FirstOrDefault(p => p.UserName == userName);
+                _myAnswers[a.Id!] = mine?.IsAttending;
+            }
+        }
     }
+
 
     private void OpenAddDialog()
     {
@@ -188,6 +226,7 @@
     {
         validationErrors.Clear();
 
+        // The browser gives date/time as text, so they must be parsed before saving.
         if (!DateOnly.TryParse(draftDate, out var parsedDate))
         {
             validationErrors.Add("Du skal vælge en gyldig dato.");
@@ -207,6 +246,7 @@
         draftAktivitet.Time = parsedTime;
         NormalizeDraft();
 
+        // Build a clean object to send, instead of posting the UI draft object directly.
         var ak = new Aktivitet
         {
             Id = editingAktivitetId,
@@ -229,6 +269,7 @@
 
         if (isEditing)
         {
+            // Update the local list so the UI changes immediately after a successful save.
             var existingAktivitet = aktiviteter.FirstOrDefault(a => a.Id == editingAktivitetId);
             if (existingAktivitet is not null)
             {
@@ -242,6 +283,7 @@
         }
         else
         {
+            // New activities may come back with a generated id from the API.
             var savedAktivitet = await response.Content.ReadFromJsonAsync<Aktivitet>();
             aktiviteter.Add(savedAktivitet ?? ak);
         }
@@ -310,5 +352,17 @@
     private static string FormatTime(TimeOnly? time)
     {
         return time?.ToString("HH:mm") ?? "-";
+    }
+    private async Task SetAttending(string aktivitetId, bool attending)
+    {
+        var userName = LoginService.CurrentUser?.Name ?? "Ukendt";
+        await participationApiService.UpsertAsync(new Participation
+        {
+            AktivitetId = aktivitetId,
+            UserName = userName,
+            IsAttending = attending
+        });
+        // Keep the selected answer locally so the button state updates without reloading.
+        _myAnswers[aktivitetId] = attending;
     }
 }
