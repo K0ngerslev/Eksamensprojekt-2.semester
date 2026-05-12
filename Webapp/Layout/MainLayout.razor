@@ -4,7 +4,7 @@
 @inject LoginService loginService
 @inject NavigationManager navManager
 @inherits LayoutComponentBase
-<div class="page">
+<div class="page @(isCalendarView ? "page--calendar-mode" : string.Empty)">
     
     <div class="sidebar">
         <NavMenu/>
@@ -21,6 +21,14 @@
             }
         </div>
 
+        <div class="layout-tools px-4">
+            <button type="button"
+                    class="calendar-mode-toggle @(isCalendarView ? "calendar-mode-toggle--active" : string.Empty)"
+                    @onclick="ToggleCalendarView">
+                @(isCalendarView ? "Normal visning" : "Kalender-visning")
+            </button>
+        </div>
+
         <article class="content px-4">
             @Body
         </article>
@@ -29,6 +37,8 @@
 @code
 {
     User? loggedIn;
+    private bool isCalendarView;
+    private bool hasLoadedCalendarPreference;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -36,6 +46,12 @@
         if (loggedIn is not null)
         {
             loginService.SetCurrentUser(loggedIn);
+        }
+
+        if (!hasLoadedCalendarPreference)
+        {
+            isCalendarView = await sessionStorage.GetItemAsync<bool>("calendar-view-enabled");
+            hasLoadedCalendarPreference = true;
         }
     }
 
@@ -48,5 +64,11 @@
         await sessionStorage.RemoveItemAsync("user");
         loggedIn = null;
         navManager.NavigateTo("login");
+    }
+
+    private async Task ToggleCalendarView()
+    {
+        isCalendarView = !isCalendarView;
+        await sessionStorage.SetItemAsync("calendar-view-enabled", isCalendarView);
     }
 }
