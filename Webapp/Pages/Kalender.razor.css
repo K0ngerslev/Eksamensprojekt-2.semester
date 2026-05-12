@@ -78,11 +78,63 @@
     background: #ececec;
     color: #111;
     font-weight: 600;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+
+.activity-card__button:hover,
+.activity-card__button:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
 }
 
 .activity-card__button--danger {
     background: #c62828;
     color: #fff;
+}
+
+.attend--yes {
+    background: #1f8f4e;
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(31, 143, 78, 0.2);
+}
+
+.attend--no {
+    background: #b93838;
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(185, 56, 56, 0.2);
+}
+
+.attendance-feedback {
+    margin-top: 0.75rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    animation: attendance-feedback-pop 0.24s ease-out;
+}
+
+.attendance-feedback--yes {
+    background: rgba(31, 143, 78, 0.18);
+    border: 1px solid rgba(31, 143, 78, 0.35);
+    color: #9ff0bc;
+}
+
+.attendance-feedback--no {
+    background: rgba(185, 56, 56, 0.18);
+    border: 1px solid rgba(185, 56, 56, 0.35);
+    color: #ffb0b0;
+}
+
+@keyframes attendance-feedback-pop {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .activity-modal-backdrop {

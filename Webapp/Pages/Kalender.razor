@@ -50,11 +50,6 @@
                             <p><strong>Noter:</strong> @aktivitet.AdditionalNotes</p>
                         }
                     </div>
-
-                    <div class="activity-card__actions">
-                        <button type="button" class="activity-card__button" @onclick="() => OpenEditDialog(aktivitet)">Rediger</button>
-                        <button type="button" class="activity-card__button activity-card__button--danger" @onclick="() => DeleteAktivitetAsync(aktivitet)">Slet</button>
-                    </div>
                     <div class="activity-card__actions">
                         <button type="button" class="activity-card__button" @onclick="() => OpenEditDialog(aktivitet)">Rediger</button>
                         <button type="button" class="activity-card__button activity-card__button--danger" @onclick="() => DeleteAktivitetAsync(aktivitet)">Slet</button>
@@ -65,12 +60,12 @@
                             <button type="button"
                                     class="activity-card__button @(answer == true ? "attend--yes" : "")"
                                     @onclick="() => SetAttending(aktivitet.Id!, true)">
-                                ✅ Deltager
+                                 Deltager
                             </button>
                             <button type="button"
                                     class="activity-card__button @(answer == false ? "attend--no" : "")"
                                     @onclick="() => SetAttending(aktivitet.Id!, false)">
-                                ❌ Deltager ikke
+                                 Deltager ikke
                             </button>
                         }
                     </div>
