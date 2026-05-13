@@ -9,7 +9,7 @@ public class LoginService
 
     public User? CurrentUser { get; private set; }
     public bool IsLoggedIn => CurrentUser is not null;
-//Login user
+// Logger brugeren ind
     public LoginService()
     {
         mUsers = [

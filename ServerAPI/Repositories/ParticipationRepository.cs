@@ -19,7 +19,7 @@ public class ParticipationRepository : IParticipationRepository
 
     public async Task UpsertAsync(Participation participation)
     {
-        // One user should have at most one answer per activity.
+        // En bruger må højst have ét svar pr. aktivitet.
         var filter = Builders<Participation>.Filter.Where(p =>
             p.AktivitetId == participation.AktivitetId &&
             p.UserName == participation.UserName);
@@ -29,7 +29,7 @@ public class ParticipationRepository : IParticipationRepository
             await _col.InsertOneAsync(participation);
         else
         {
-            // Reuse the old Mongo id so ReplaceOne updates the same document.
+            // Genbruger det gamle Mongo-id, så ReplaceOne opdaterer samme dokument.
             participation.Id = existing.Id;
             await _col.ReplaceOneAsync(filter, participation);
         }

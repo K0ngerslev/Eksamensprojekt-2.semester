@@ -5,31 +5,31 @@ namespace WebApp.Service;
 
 public class AktivitetApiService
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpClient httpClient;
 
     public AktivitetApiService(HttpClient httpClient)
     {
-        _httpClient = httpClient;
+        this.httpClient = httpClient;
     }
 
     public async Task<List<Aktivitet>> GetAllAsync()
     {
-        return await _httpClient.GetFromJsonAsync<List<Aktivitet>>("http://localhost:5243/api/Aktivitet") ?? [];
+        return await httpClient.GetFromJsonAsync<List<Aktivitet>>("http://localhost:5243/api/Aktivitet") ?? [];
     }
 
     public Task<HttpResponseMessage> AddAsync(Aktivitet aktivitet)
     {
-        return _httpClient.PostAsJsonAsync("http://localhost:5243/api/Aktivitet", aktivitet);
+        return httpClient.PostAsJsonAsync("http://localhost:5243/api/Aktivitet", aktivitet);
     }
 
     public Task<HttpResponseMessage> UpdateAsync(string id, Aktivitet aktivitet)
     {
-        return _httpClient.PutAsJsonAsync($"http://localhost:5243/api/Aktivitet/{id}", aktivitet);
+        return httpClient.PutAsJsonAsync($"http://localhost:5243/api/Aktivitet/{id}", aktivitet);
     }
 
     public Task<HttpResponseMessage> DeleteAsync(string id)
     {
-        return _httpClient.DeleteAsync($"http://localhost:5243/api/Aktivitet/{id}");
+        return httpClient.DeleteAsync($"http://localhost:5243/api/Aktivitet/{id}");
     }
 
     public static async Task<List<Aktivitet>?> Httpclient()

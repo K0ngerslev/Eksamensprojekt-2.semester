@@ -35,7 +35,7 @@
             return;
         }
 
-        // Restore the user from session storage after a refresh before redirecting to login.
+        // Gendanner brugeren fra session storage efter en refresh, før der omdirigeres til login.
         var storedUser = await SessionStorage.GetItemAsync<User>("user");
         if (storedUser is not null)
         {

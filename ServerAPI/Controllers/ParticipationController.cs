@@ -8,13 +8,13 @@ namespace ServerAPI.Controllers;
 [Route("api/[controller]")]
 public class ParticipationController : ControllerBase
 {
-    private readonly IParticipationRepository _repo;
+    private readonly IParticipationRepository repo;
 
-    public ParticipationController(IParticipationRepository repo) => _repo = repo;
+    public ParticipationController(IParticipationRepository repo) => this.repo = repo;
 
     [HttpGet("{aktivitetId}")]
     public async Task<ActionResult<List<Participation>>> GetByAktivitet(string aktivitetId) =>
-        Ok(await _repo.GetByAktivitetIdAsync(aktivitetId));
+        Ok(await repo.GetByAktivitetIdAsync(aktivitetId));
 
     [HttpPost]
     public async Task<IActionResult> Upsert([FromBody] Participation participation)
@@ -23,7 +23,7 @@ public class ParticipationController : ControllerBase
             string.IsNullOrWhiteSpace(participation.UserName))
             return BadRequest("AktivitetId og UserName er påkrævet.");
 
-        await _repo.UpsertAsync(participation);
+        await repo.UpsertAsync(participation);
         return NoContent();
     }
 }

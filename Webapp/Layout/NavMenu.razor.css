@@ -71,12 +71,12 @@
     }
 
     .collapse {
-        /* Never collapse the sidebar for wide screens */
+        /* Kollaps aldrig sidebaren på brede skærme */
         display: block;
     }
 
     .nav-scrollable {
-        /* Allow sidebar to scroll for tall menus */
+        /* Tillad at sidebaren kan scrolle ved høje menuer */
         height: calc(100vh - 3.5rem);
         overflow-y: auto;
     }

@@ -141,7 +141,7 @@
 @code {
     private readonly List<Aktivitet> aktiviteter = new();
     private readonly List<string> validationErrors = new();
-    // activity id -> this user's answer; null means no answer yet
+    // aktivitets-id -> denne brugers svar; null betyder endnu intet svar
     private readonly Dictionary<string, bool?> _myAnswers = new();
     
     private Aktivitet draftAktivitet = new();
@@ -159,11 +159,11 @@
         var loaded = await aktivitetApiService.GetAllAsync();
         aktiviteter.AddRange(loaded);
 
-        // Load current user's answers for all activities
+        // Indlæser den aktuelle brugers svar for alle aktiviteter
         var userName = LoginService.CurrentUser?.Name;
         if (userName is not null)
         {
-            // Fetch each activity's attendance list and keep only the current user's answer.
+            // Henter deltagelseslisten for hver aktivitet og gemmer kun den aktuelle brugers svar.
             foreach (var a in aktiviteter.Where(a => a.Id is not null))
             {
                 var participations = await participationApiService.GetByAktivitetIdAsync(a.Id!);
@@ -221,7 +221,7 @@
     {
         validationErrors.Clear();
 
-        // The browser gives date/time as text, so they must be parsed before saving.
+        // Browseren giver dato/tid som tekst, så de skal parses før gemning.
         if (!DateOnly.TryParse(draftDate, out var parsedDate))
         {
             validationErrors.Add("Du skal vælge en gyldig dato.");
@@ -241,7 +241,7 @@
         draftAktivitet.Time = parsedTime;
         NormalizeDraft();
 
-        // Build a clean object to send, instead of posting the UI draft object directly.
+        // Bygger et rent objekt til API'et i stedet for at sende UI-kladdeobjektet direkte.
         var ak = new Aktivitet
         {
             Id = editingAktivitetId,
@@ -264,7 +264,7 @@
 
         if (isEditing)
         {
-            // Update the local list so the UI changes immediately after a successful save.
+            // Opdaterer den lokale liste, så UI'et ændrer sig med det samme efter en succesfuld gemning.
             var existingAktivitet = aktiviteter.FirstOrDefault(a => a.Id == editingAktivitetId);
             if (existingAktivitet is not null)
             {
@@ -278,7 +278,7 @@
         }
         else
         {
-            // New activities may come back with a generated id from the API.
+            // Nye aktiviteter kan komme retur med et genereret id fra API'et.
             var savedAktivitet = await response.Content.ReadFromJsonAsync<Aktivitet>();
             aktiviteter.Add(savedAktivitet ?? ak);
         }
@@ -357,7 +357,7 @@
             UserName = userName,
             IsAttending = attending
         });
-        // Keep the selected answer locally so the button state updates without reloading.
+        // Gemmer det valgte svar lokalt, så knaptilstanden opdateres uden genindlæsning.
         _myAnswers[aktivitetId] = attending;
     }
 }

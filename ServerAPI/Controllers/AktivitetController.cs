@@ -10,19 +10,19 @@ namespace ServerAPI.Controllers;
 public class AktivitetController : ControllerBase
 {
     // Repository bruges til at hente og gemme aktiviteter i databasen.
-    private readonly IAktivitetRepository _repo;
+    private readonly IAktivitetRepository repo;
 
     // Constructor injicerer repositoryet, så controlleren kan bruge det i endpoints.
     public AktivitetController(IAktivitetRepository repo)
     {
-        _repo = repo;
+        this.repo = repo;
     }
 
     // Henter alle aktiviteter fra databasen og returnerer dem som et svar.
     [HttpGet]
     public async Task<ActionResult<List<Aktivitet>>> GetAll()
     {
-        var aktiviteter = await _repo.GetAllAsync();
+        var aktiviteter = await repo.GetAllAsync();
         return Ok(aktiviteter);
     }
 
@@ -37,7 +37,7 @@ public class AktivitetController : ControllerBase
         }
 
         // Forsøger at finde aktiviteten i databasen.
-        var aktivitet = await _repo.GetByIdAsync(id);
+        var aktivitet = await repo.GetByIdAsync(id);
 
         // Returnerer 404 hvis aktiviteten ikke findes.
         if (aktivitet is null)
@@ -62,7 +62,7 @@ public class AktivitetController : ControllerBase
 
         // Sørger for at databasen selv opretter et nyt id.
         aktivitet.Id = null;
-        await _repo.CreateAsync(aktivitet);
+        await repo.CreateAsync(aktivitet);
 
         // Returnerer 201 Created med reference til endpointet, der kan hente aktiviteten.
         return CreatedAtAction(nameof(GetById), new { id = aktivitet.Id }, aktivitet);
@@ -79,7 +79,7 @@ public class AktivitetController : ControllerBase
         }
 
         // Tjekker først om aktiviteten findes, før den forsøges opdateret.
-        if (await _repo.GetByIdAsync(id) is null)
+        if (await repo.GetByIdAsync(id) is null)
         {
             return NotFound();
         }
@@ -92,7 +92,7 @@ public class AktivitetController : ControllerBase
         }
 
         // Gemmer de opdaterede data på den eksisterende aktivitet.
-        await _repo.UpdateAsync(id, aktivitet);
+        await repo.UpdateAsync(id, aktivitet);
         return NoContent();
     }
 
@@ -107,13 +107,13 @@ public class AktivitetController : ControllerBase
         }
 
         // Tjekker om aktiviteten findes, før den slettes.
-        if (await _repo.GetByIdAsync(id) is null)
+        if (await repo.GetByIdAsync(id) is null)
         {
             return NotFound();
         }
 
         // Sletter aktiviteten og returnerer et tomt succes-svar.
-        await _repo.DeleteAsync(id);
+        await repo.DeleteAsync(id);
         return NoContent();
     }
 
