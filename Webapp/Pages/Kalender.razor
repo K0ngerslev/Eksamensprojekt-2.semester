@@ -50,24 +50,22 @@
                             <p><strong>Noter:</strong> @aktivitet.AdditionalNotes</p>
                         }
                     </div>
-                    
                     <div class="activity-card__actions">
-                        <AuthorizeView Roles="Træner">
                         <button type="button" class="activity-card__button" @onclick="() => OpenEditDialog(aktivitet)">Rediger</button>
                         <button type="button" class="activity-card__button activity-card__button--danger" @onclick="() => DeleteAktivitetAsync(aktivitet)">Slet</button>
-                    </AuthorizeView>
+
                         @if (aktivitet.Id is not null)
                         {
                             var answer = _myAnswers.GetValueOrDefault(aktivitet.Id);
                             <button type="button"
                                     class="activity-card__button @(answer == true ? "attend--yes" : "")"
                                     @onclick="() => SetAttending(aktivitet.Id!, true)">
-                                Deltager
+                                 Deltager
                             </button>
                             <button type="button"
                                     class="activity-card__button @(answer == false ? "attend--no" : "")"
                                     @onclick="() => SetAttending(aktivitet.Id!, false)">
-                                Deltager ikke
+                                 Deltager ikke
                             </button>
                         }
                     </div>
