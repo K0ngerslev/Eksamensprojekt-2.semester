@@ -60,7 +60,7 @@
                             <button type="button" class="activity-card__button activity-card__button--danger" @onclick="() => DeleteAktivitetAsync(aktivitet)">Slet</button>
                         }
 
-                        @if (aktivitet.Id is not null & LoginService.CurrentUser?.Role == "spiller")
+                        @if (aktivitet.Id is not null & LoginService.CurrentUser?.Role == "Spiller")
                         {
                             var answer = _myAnswers.GetValueOrDefault(aktivitet.Id);
                             <button type="button"
