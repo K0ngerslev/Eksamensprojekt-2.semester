@@ -1,4 +1,3 @@
-using System.Globalization;
 using Core.Model;
 using Microsoft.AspNetCore.Mvc;
 using ServerAPI.Repositories;
@@ -10,9 +9,6 @@ namespace ServerAPI.Controllers;
 [Route("api/[controller]")]
 public class AktivitetController : ControllerBase
 {
-    private static readonly string[] SupportedDateFormats = ["yyyy-MM-dd"];
-    private static readonly string[] SupportedTimeFormats = ["HH:mm", "HH:mm:ss"];
-
     // Repository bruges til at hente og gemme aktiviteter i databasen.
     private readonly IAktivitetRepository repo;
 
@@ -55,11 +51,10 @@ public class AktivitetController : ControllerBase
 
     // Opretter en ny aktivitet ud fra data sendt i request body.
     [HttpPost]
-    public async Task<ActionResult<Aktivitet>> Create([FromBody] AktivitetRequest request)
+    public async Task<ActionResult<Aktivitet>> Create([FromBody] Aktivitet aktivitet)
     {
         // Validerer input før aktiviteten gemmes.
-        var aktivitet = BuildAktivitet(request);
-        var validationResult = ValidateAktivitet(aktivitet, request);
+        var validationResult = ValidateAktivitet(aktivitet);
         if (validationResult is not null)
         {
             return validationResult;
@@ -75,7 +70,7 @@ public class AktivitetController : ControllerBase
 
     // Opdaterer en eksisterende aktivitet ud fra id og nye værdier.
     [HttpPut("{id}")]
-    public async Task<ActionResult<Aktivitet>> Update(string id, [FromBody] AktivitetRequest request)
+    public async Task<ActionResult<Aktivitet>> Update(string id, [FromBody] Aktivitet aktivitet)
     {
         // Stopper requesten, hvis id mangler eller kun indeholder mellemrum.
         if (string.IsNullOrWhiteSpace(id))
@@ -88,10 +83,8 @@ public class AktivitetController : ControllerBase
         {
             return NotFound();
         }
-
         // Validerer de nye værdier inden opdatering.
-        var aktivitet = BuildAktivitet(request);
-        var validationResult = ValidateAktivitet(aktivitet, request);
+        var validationResult = ValidateAktivitet(aktivitet);
         if (validationResult is not null)
         {
             return validationResult;
@@ -124,7 +117,7 @@ public class AktivitetController : ControllerBase
     }
 
     // Samler al validering af aktivitetens felter i controlleren.
-    private ActionResult? ValidateAktivitet(Aktivitet aktivitet, AktivitetRequest request)
+    private ActionResult? ValidateAktivitet(Aktivitet aktivitet)
     {
         // Rydder input op, så unødige mellemrum ikke giver dårlige data.
         NormalizeAktivitet(aktivitet);
@@ -141,32 +134,20 @@ public class AktivitetController : ControllerBase
         }
 
         // Tjekker at der er valgt en dato.
-        if (string.IsNullOrWhiteSpace(request.Date))
+        if (aktivitet.Date is null)
         {
             ModelState.AddModelError(nameof(aktivitet.Date), "Dato mangler.");
         }
-        else if (aktivitet.Date is null)
-        {
-            ModelState.AddModelError(nameof(aktivitet.Date), "Dato er ugyldig.");
-        }
 
         // Tjekker at der er valgt et tidspunkt.
-        if (string.IsNullOrWhiteSpace(request.StartTime))
+        if (aktivitet.StartTime is null)
         {
             ModelState.AddModelError(nameof(aktivitet.StartTime), "Starttid mangler.");
         }
-        else if (aktivitet.StartTime is null)
-        {
-            ModelState.AddModelError(nameof(aktivitet.StartTime), "Starttid er ugyldig.");
-        }
 
-        if (string.IsNullOrWhiteSpace(request.EndTime))
+        if (aktivitet.EndTime is null)
         {
             ModelState.AddModelError(nameof(aktivitet.EndTime), "Sluttid mangler.");
-        }
-        else if (aktivitet.EndTime is null)
-        {
-            ModelState.AddModelError(nameof(aktivitet.EndTime), "Sluttid er ugyldig.");
         }
         else if (aktivitet.StartTime is not null && aktivitet.EndTime <= aktivitet.StartTime)
         {
@@ -195,20 +176,6 @@ public class AktivitetController : ControllerBase
         return ModelState.IsValid ? null : ValidationProblem(ModelState);
     }
 
-    private static Aktivitet BuildAktivitet(AktivitetRequest request)
-    {
-        return new Aktivitet
-        {
-            ActivityType = request.ActivityType,
-            Date = ParseDate(request.Date),
-            StartTime = ParseTime(request.StartTime),
-            EndTime = ParseTime(request.EndTime),
-            FieldOrLocation = request.FieldOrLocation,
-            ChangingRoom = request.ChangingRoom,
-            AdditionalNotes = request.AdditionalNotes
-        };
-    }
-
     // Renser tekstfelter ved at trimme mellemrum og sætte tomme valgfrie felter til null.
     private static void NormalizeAktivitet(Aktivitet aktivitet)
     {
@@ -216,19 +183,5 @@ public class AktivitetController : ControllerBase
         aktivitet.FieldOrLocation = aktivitet.FieldOrLocation?.Trim();
         aktivitet.ChangingRoom = string.IsNullOrWhiteSpace(aktivitet.ChangingRoom) ? null : aktivitet.ChangingRoom.Trim();
         aktivitet.AdditionalNotes = string.IsNullOrWhiteSpace(aktivitet.AdditionalNotes) ? null : aktivitet.AdditionalNotes.Trim();
-    }
-
-    private static DateOnly? ParseDate(string? value)
-    {
-        return DateOnly.TryParseExact(value, SupportedDateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate)
-            ? parsedDate
-            : null;
-    }
-
-    private static TimeOnly? ParseTime(string? value)
-    {
-        return TimeOnly.TryParseExact(value, SupportedTimeFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedTime)
-            ? parsedTime
-            : null;
     }
 }
