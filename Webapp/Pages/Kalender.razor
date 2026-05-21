@@ -3,7 +3,7 @@
 @using System.Text.Json
 @using Core.Model
 @inject WebApp.Service.AktivitetApiService aktivitetApiService
-@inject WebApp.Service.ParticipationApiService participationApiService
+@inject WebApp.Service.DeltagerApiService deltagerApiService
 @inject WebApp.Service.LoginService LoginService 
 
 
@@ -63,41 +63,41 @@
                         @if (LoginService.CurrentUser?.Role == "træner")
                         {
                             <button type="button" class="activity-card__button"
-                                    @onclick="() => ToggleParticipations(aktivitet.Id!)">
+                                    @onclick="() => ToggleDeltagere(aktivitet.Id!)">
                                 @(_expandedActivities.Contains(aktivitet.Id!) ? "Skjul deltagere" : "Vis deltagere")
                             </button>
                         }
 
                         @if (aktivitet.Id is not null && _expandedActivities.Contains(aktivitet.Id))
                         {
-                            var list = _participations.GetValueOrDefault(aktivitet.Id) ?? [];
+                            var list = _deltagere.GetValueOrDefault(aktivitet.Id) ?? [];
                             var attending = list.Where(p => p.IsAttending).ToList();
                             var notAttending = list.Where(p => !p.IsAttending).ToList();
 
-                            <div class="participation-list">
+                            <div class="deltager-list">
                                 <p><strong> Deltager (@attending.Count):</strong></p>
                                 @if (attending.Count == 0)
                                 {
-                                    <span class="participation-none">Ingen endnu</span>
+                                    <span class="deltager-none">Ingen endnu</span>
                                 }
                                 else
                                 {
                                     @foreach (var p in attending)
                                     {
-                                        <span class="participation-pill participation-pill--yes">@p.UserName</span>
+                                        <span class="deltager-pill deltager-pill--yes">@p.UserName</span>
                                     }
                                 }
 
                                 <p style="margin-top: 0.5rem"><strong> Deltager ikke (@notAttending.Count):</strong></p>
                                 @if (notAttending.Count == 0)
                                 {
-                                    <span class="participation-none">Ingen endnu</span>
+                                    <span class="deltager-none">Ingen endnu</span>
                                 }
                                 else
                                 {
                                     @foreach (var p in notAttending)
                                     {
-                                        <span class="participation-pill participation-pill--no">@p.UserName</span>
+                                        <span class="deltager-pill deltager-pill--no">@p.UserName</span>
                                     }
                                 }
                             </div>
@@ -197,7 +197,7 @@
     private readonly List<string> validationErrors = new();
     // aktivitets-id -> denne brugers svar; null betyder endnu intet svar
     private readonly Dictionary<string, bool?> myAnswers = new();
-    private readonly Dictionary<string, List<Participation>> _participations = new();
+    private readonly Dictionary<string, List<Deltager>> _deltagere = new();
     private readonly HashSet<string> _expandedActivities = new();
     
     
@@ -220,11 +220,11 @@
         var userName = LoginService.CurrentUser?.Name;
         if (userName is not null)
         {
-            // Henter deltagelseslisten for hver aktivitet og gemmer kun den aktuelle brugers svar.
+            // Henter deltagerlisten for hver aktivitet og gemmer kun den aktuelle brugers svar.
             foreach (var a in aktiviteter.Where(a => a.Id is not null))
             {
-                var participations = await participationApiService.GetByAktivitetIdAsync(a.Id!);
-                var mine = participations.FirstOrDefault(p => p.UserName == userName);
+                var deltagere = await deltagerApiService.GetByAktivitetIdAsync(a.Id!);
+                var mine = deltagere.FirstOrDefault(p => p.UserName == userName);
                 myAnswers[a.Id!] = mine?.IsAttending;
             }
         }
@@ -452,7 +452,7 @@
     private async Task SetAttending(string aktivitetId, bool attending)
     {
         var userName = LoginService.CurrentUser?.Name ?? "Ukendt";
-        await participationApiService.UpsertAsync(new Participation
+        await deltagerApiService.UpsertAsync(new Deltager
         {
             AktivitetId = aktivitetId,
             UserName = userName,
@@ -462,7 +462,7 @@
         myAnswers[aktivitetId] = attending;
     }
 
-    private async Task ToggleParticipations(string aktivitetId)
+    private async Task ToggleDeltagere(string aktivitetId)
     {
         if (_expandedActivities.Contains(aktivitetId))
         {
@@ -471,10 +471,10 @@
         }
         _expandedActivities.Add(aktivitetId);
 
-        if (!_participations.ContainsKey(aktivitetId))
+        if (!_deltagere.ContainsKey(aktivitetId))
         {
-            var list = await participationApiService.GetByAktivitetIdAsync(aktivitetId);
-            _participations[aktivitetId] = list;
+            var list = await deltagerApiService.GetByAktivitetIdAsync(aktivitetId);
+            _deltagere[aktivitetId] = list;
         }
     }
     

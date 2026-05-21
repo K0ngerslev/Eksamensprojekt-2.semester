@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Core.Model;
 
-public class Participation
+public class Deltager
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
