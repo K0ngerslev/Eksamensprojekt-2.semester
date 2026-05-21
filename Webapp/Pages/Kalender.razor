@@ -33,12 +33,12 @@
     else
     {
         <div class="activity-page__list">
-            @foreach (var aktivitet in aktiviteter.OrderBy(a => a.Date).ThenBy(a => a.Time))
+            @foreach (var aktivitet in aktiviteter.OrderBy(a => a.Date).ThenBy(a => a.StartTime))
             {
                 <article class="activity-card">
                     <div class="activity-card__top">
                         <h3>@aktivitet.ActivityType</h3>
-                        <span>@FormatDate(aktivitet.Date) kl. @FormatTime(aktivitet.Time)</span>
+                        <span>@FormatDate(aktivitet.Date) kl. @FormatTimeRange(aktivitet.StartTime, aktivitet.EndTime)</span>
                     </div>
 
                     <div class="activity-card__details">
@@ -157,8 +157,13 @@
                         </div>
 
                         <div class="activity-form__group">
-                            <label for="activity-time">Tid</label>
-                            <input id="activity-time" class="form-control" type="time" value="@draftTime" @onchange="HandleTimeChanged" />
+                            <label for="activity-start-time">Starttid</label>
+                            <input id="activity-start-time" class="form-control" type="time" value="@draftStartTime" @onchange="HandleStartTimeChanged" />
+                        </div>
+
+                        <div class="activity-form__group">
+                            <label for="activity-end-time">Sluttid</label>
+                            <input id="activity-end-time" class="form-control" type="time" value="@draftEndTime" @onchange="HandleEndTimeChanged" />
                         </div>
                     </div>
 
@@ -201,15 +206,15 @@
     private bool isEditing;
     private string? editingAktivitetId;
     private string? draftDate;
-    private string? draftTime;
+    private string? draftStartTime;
+    private string? draftEndTime;
 
     
     //loader aktiviteter fra API og viser dem på siden.
     protected override async Task OnInitializedAsync()
     {
         ResetDraft();
-        var loaded = await aktivitetApiService.GetAllAsync();
-        aktiviteter.AddRange(loaded);
+        await ReloadAktiviteterAsync();
 
         // Indlæser den aktuelle brugers svar for alle aktiviteter
         var userName = LoginService.CurrentUser?.Name;
@@ -243,13 +248,15 @@
             Id = aktivitet.Id,
             ActivityType = aktivitet.ActivityType,
             Date = aktivitet.Date,
-            Time = aktivitet.Time,
+            StartTime = aktivitet.StartTime,
+            EndTime = aktivitet.EndTime,
             FieldOrLocation = aktivitet.FieldOrLocation,
             ChangingRoom = aktivitet.ChangingRoom,
             AdditionalNotes = aktivitet.AdditionalNotes
         };
         draftDate = aktivitet.Date?.ToString("yyyy-MM-dd");
-        draftTime = aktivitet.Time?.ToString("HH:mm");
+        draftStartTime = aktivitet.StartTime?.ToString("HH:mm");
+        draftEndTime = aktivitet.EndTime?.ToString("HH:mm");
         isDialogOpen = true;
     }
 
@@ -264,49 +271,34 @@
         draftDate = args.Value?.ToString();
     }
 
-    private void HandleTimeChanged(ChangeEventArgs args)
+    private void HandleStartTimeChanged(ChangeEventArgs args)
     {
-        draftTime = args.Value?.ToString();
+        draftStartTime = args.Value?.ToString();
+    }
+
+    private void HandleEndTimeChanged(ChangeEventArgs args)
+    {
+        draftEndTime = args.Value?.ToString();
     }
 
     private async Task HandleSubmitAsync(EditContext _)
     {
         validationErrors.Clear();
-
-        // Browseren giver dato/tid som tekst, så de skal parses før gemning.
-        if (!DateOnly.TryParse(draftDate, out var parsedDate))
-        {
-            validationErrors.Add("Du skal vælge en gyldig dato.");
-        }
-
-        if (!TimeOnly.TryParse(draftTime, out var parsedTime))
-        {
-            validationErrors.Add("Du skal vælge et gyldigt tidspunkt.");
-        }
-
-        if (validationErrors.Count > 0)
-        {
-            return;
-        }
-
-        draftAktivitet.Date = parsedDate;
-        draftAktivitet.Time = parsedTime;
         NormalizeDraft();
 
-        // Bygger et rent objekt til API'et i stedet for at sende UI-kladdeobjektet direkte.
-        var ak = new Aktivitet
+        var request = new AktivitetRequest
         {
-            Id = editingAktivitetId,
             ActivityType = draftAktivitet.ActivityType,
-            Date = draftAktivitet.Date,
-            Time = draftAktivitet.Time,
+            Date = draftDate,
+            StartTime = draftStartTime,
+            EndTime = draftEndTime,
             FieldOrLocation = draftAktivitet.FieldOrLocation,
             ChangingRoom = draftAktivitet.ChangingRoom,
             AdditionalNotes = draftAktivitet.AdditionalNotes
         };
         var response = isEditing && !string.IsNullOrWhiteSpace(editingAktivitetId)
-            ? await aktivitetApiService.UpdateAsync(editingAktivitetId, ak)
-            : await aktivitetApiService.AddAsync(ak);
+            ? await aktivitetApiService.UpdateAsync(editingAktivitetId, request)
+            : await aktivitetApiService.AddAsync(request);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -314,27 +306,7 @@
             return;
         }
 
-        if (isEditing)
-        {
-            // Opdaterer den lokale liste, så UI'et ændrer sig med det samme efter en succesfuld gemning.
-            var existingAktivitet = aktiviteter.FirstOrDefault(a => a.Id == editingAktivitetId);
-            if (existingAktivitet is not null)
-            {
-                existingAktivitet.ActivityType = ak.ActivityType;
-                existingAktivitet.Date = ak.Date;
-                existingAktivitet.Time = ak.Time;
-                existingAktivitet.FieldOrLocation = ak.FieldOrLocation;
-                existingAktivitet.ChangingRoom = ak.ChangingRoom;
-                existingAktivitet.AdditionalNotes = ak.AdditionalNotes;
-            }
-        }
-        else
-        {
-            // Nye aktiviteter kan komme retur med et genereret id fra API'et.
-            var savedAktivitet = await response.Content.ReadFromJsonAsync<Aktivitet>();
-            aktiviteter.Add(savedAktivitet ?? ak);
-        }
-
+        await ReloadAktiviteterAsync();
         CloseAddDialog();
         ResetDraft();
     }
@@ -345,7 +317,8 @@
         editingAktivitetId = null;
         isEditing = false;
         draftDate = DateTime.Today.ToString("yyyy-MM-dd");
-        draftTime = DateTime.Now.ToString("HH:mm");
+        draftStartTime = DateTime.Now.ToString("HH:mm");
+        draftEndTime = DateTime.Now.AddHours(1).ToString("HH:mm");
         validationErrors.Clear();
     }
 
@@ -379,6 +352,12 @@
         }
 
         aktiviteter.Remove(aktivitet);
+    }
+
+    private async Task ReloadAktiviteterAsync()
+    {
+        aktiviteter.Clear();
+        aktiviteter.AddRange(await aktivitetApiService.GetAllAsync());
     }
 
     private static async Task<List<string>> ReadErrorsAsync(HttpResponseMessage response)
@@ -450,6 +429,26 @@
     {
         return time?.ToString("HH:mm") ?? "-";
     }
+
+    private static string FormatTimeRange(TimeOnly? startTime, TimeOnly? endTime)
+    {
+        if (startTime is null && endTime is null)
+        {
+            return "-";
+        }
+
+        if (startTime is null)
+        {
+            return FormatTime(endTime);
+        }
+
+        if (endTime is null)
+        {
+            return FormatTime(startTime);
+        }
+
+        return $"{FormatTime(startTime)} - {FormatTime(endTime)}";
+    }
     private async Task SetAttending(string aktivitetId, bool attending)
     {
         var userName = LoginService.CurrentUser?.Name ?? "Ukendt";
@@ -481,4 +480,3 @@
     
     }
 }
-

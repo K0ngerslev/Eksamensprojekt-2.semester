@@ -19,7 +19,12 @@ public class Aktivitet
     public DateOnly? Date { get; set; }
 
     // Angiver hvilket tidspunkt aktiviteten starter.
-    public TimeOnly? Time { get; set; }
+    [BsonElement("Time")]
+    public TimeOnly? StartTime { get; set; }
+
+    // Angiver hvilket tidspunkt aktiviteten slutter.
+    [BsonIgnoreIfNull]
+    public TimeOnly? EndTime { get; set; }
 
     // Indeholder information om bane eller lokation.
     public string? FieldOrLocation { get; set; }

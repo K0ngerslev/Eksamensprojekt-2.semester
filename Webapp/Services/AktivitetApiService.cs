@@ -17,12 +17,12 @@ public class AktivitetApiService
         return await httpClient.GetFromJsonAsync<List<Aktivitet>>("http://localhost:5243/api/Aktivitet") ?? [];
     }
 
-    public Task<HttpResponseMessage> AddAsync(Aktivitet aktivitet)
+    public Task<HttpResponseMessage> AddAsync(AktivitetRequest aktivitet)
     {
         return httpClient.PostAsJsonAsync("http://localhost:5243/api/Aktivitet", aktivitet);
     }
 
-    public Task<HttpResponseMessage> UpdateAsync(string id, Aktivitet aktivitet)
+    public Task<HttpResponseMessage> UpdateAsync(string id, AktivitetRequest aktivitet)
     {
         return httpClient.PutAsJsonAsync($"http://localhost:5243/api/Aktivitet/{id}", aktivitet);
     }
