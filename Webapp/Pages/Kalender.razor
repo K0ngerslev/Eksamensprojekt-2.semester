@@ -2,6 +2,7 @@
 @using System.Net.Http.Json
 @using System.Text.Json
 @using Core.Model
+@using Eksamensprojekt_2.semester.Components
 @inject WebApp.Service.AktivitetApiService aktivitetApiService
 @inject WebApp.Service.ParticipationApiService participationApiService
 @inject WebApp.Service.LoginService LoginService 
@@ -16,7 +17,7 @@
             <p>Her kan du se og oprette holdets aktiviteter.</p>
         </div>
 
-        @if (LoginService.CurrentUser?.Role == "træner")
+        @if (CanManageActivities)
         {
             <button type="button" class="activity-page__add-button" @onclick="OpenAddDialog">
                 Tilføj aktivitet
@@ -24,7 +25,7 @@
         }
     </div>
 
-    @if (aktiviteter.Count == 0 & LoginService.CurrentUser?.Role == "træner")
+    @if (aktiviteter.Count == 0 && CanManageActivities)
     {
         <div class="activity-page__empty-state">
             Ingen aktiviteter endnu. Tryk på <strong>Tilføj aktivitet</strong> for at oprette den første.
@@ -35,90 +36,16 @@
         <div class="activity-page__list">
             @foreach (var aktivitet in aktiviteter.OrderBy(a => a.Date).ThenBy(a => a.StartTime))
             {
-                <article class="activity-card">
-                    <div class="activity-card__top">
-                        <h3>@aktivitet.ActivityType</h3>
-                        <span>@FormatDate(aktivitet.Date) kl. @FormatTimeRange(aktivitet.StartTime, aktivitet.EndTime)</span>
-                    </div>
-
-                    <div class="activity-card__details">
-                        <p><strong>Sted:</strong> @aktivitet.FieldOrLocation</p>
-
-                        @if (!string.IsNullOrWhiteSpace(aktivitet.ChangingRoom))
-                        {
-                            <p><strong>Omklædning:</strong> @aktivitet.ChangingRoom</p>
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(aktivitet.AdditionalNotes))
-                        {
-                            <p><strong>Noter:</strong> @aktivitet.AdditionalNotes</p>
-                        }
-                    </div>
-                    <div class="activity-card__actions">
-                        @if (LoginService.CurrentUser?.Role == "træner")
-                        {
-                            <button type="button" class="activity-card__button" @onclick="() => OpenEditDialog(aktivitet)">Rediger</button>
-                            <button type="button" class="activity-card__button activity-card__button--danger" @onclick="() => DeleteAktivitetAsync(aktivitet)">Slet</button>
-                        }
-                        @if (LoginService.CurrentUser?.Role == "træner")
-                        {
-                            <button type="button" class="activity-card__button"
-                                    @onclick="() => ToggleParticipations(aktivitet.Id!)">
-                                @(_expandedActivities.Contains(aktivitet.Id!) ? "Skjul deltagere" : "Vis deltagere")
-                            </button>
-                        }
-
-                        @if (aktivitet.Id is not null && _expandedActivities.Contains(aktivitet.Id))
-                        {
-                            var list = _participations.GetValueOrDefault(aktivitet.Id) ?? [];
-                            var attending = list.Where(p => p.IsAttending).ToList();
-                            var notAttending = list.Where(p => !p.IsAttending).ToList();
-
-                            <div class="participation-list">
-                                <p><strong> Deltager (@attending.Count):</strong></p>
-                                @if (attending.Count == 0)
-                                {
-                                    <span class="participation-none">Ingen endnu</span>
-                                }
-                                else
-                                {
-                                    @foreach (var p in attending)
-                                    {
-                                        <span class="participation-pill participation-pill--yes">@p.UserName</span>
-                                    }
-                                }
-
-                                <p style="margin-top: 0.5rem"><strong> Deltager ikke (@notAttending.Count):</strong></p>
-                                @if (notAttending.Count == 0)
-                                {
-                                    <span class="participation-none">Ingen endnu</span>
-                                }
-                                else
-                                {
-                                    @foreach (var p in notAttending)
-                                    {
-                                        <span class="participation-pill participation-pill--no">@p.UserName</span>
-                                    }
-                                }
-                            </div>
-                        }
-
-                        @if (aktivitet.Id is not null & LoginService.CurrentUser?.Role == "Spiller")
-                        {
-                            var answer = myAnswers.GetValueOrDefault(aktivitet.Id);
-                            <button type="button"
-                                    class="activity-card__button @(answer == true ? "attend--yes" : "")"
-                                    @onclick="() => SetAttending(aktivitet.Id!, true)">
-                                Deltager
-                            </button>
-                            <button type="button"
-                                    class="activity-card__button @(answer == false ? "attend--no" : "")"
-                                    @onclick="() => SetAttending(aktivitet.Id!, false)">
-                                Deltager ikke
-                            </button>
-                        }
-                    </div>
-                </article>
+                <AktivitetCard Aktivitet="aktivitet"
+                               CanManage="@CanManageActivities"
+                               CanRespond="@CanRespondToActivities"
+                               Answer="@GetMyAnswer(aktivitet.Id)"
+                               IsParticipationsExpanded="@IsParticipationsExpanded(aktivitet.Id)"
+                               Participations="@GetParticipations(aktivitet.Id)"
+                               OnEdit="OpenEditDialog"
+                               OnDelete="DeleteAktivitetAsync"
+                               OnToggleParticipations="ToggleParticipations"
+                               OnSetAttending="@(attending => HandleAttendingChangedAsync(aktivitet, attending))" />
             }
         </div>
     }
@@ -419,38 +346,36 @@
         return [content];
     }
 
+    private bool CanManageActivities => LoginService.CurrentUser?.Role == "træner";
+
+    private bool CanRespondToActivities => LoginService.CurrentUser?.Role == "Spiller";
+
     private string DialogTitle => isEditing ? "Rediger aktivitet" : "Tilføj aktivitet";
 
     private string SubmitButtonText => isEditing ? "Gem ændringer" : "Gem aktivitet";
 
-    private static string FormatDate(DateOnly? date)
+    private bool? GetMyAnswer(string? aktivitetId)
     {
-        return date?.ToString("dd/MM/yyyy") ?? "-";
+        return aktivitetId is null ? null : myAnswers.GetValueOrDefault(aktivitetId);
     }
 
-    private static string FormatTime(TimeOnly? time)
+    private IReadOnlyList<Participation> GetParticipations(string? aktivitetId)
     {
-        return time?.ToString("HH:mm") ?? "-";
+        return aktivitetId is not null && _participations.TryGetValue(aktivitetId, out var participations)
+            ? participations
+            : [];
     }
 
-    private static string FormatTimeRange(TimeOnly? startTime, TimeOnly? endTime)
+    private bool IsParticipationsExpanded(string? aktivitetId)
     {
-        if (startTime is null && endTime is null)
-        {
-            return "-";
-        }
+        return aktivitetId is not null && _expandedActivities.Contains(aktivitetId);
+    }
 
-        if (startTime is null)
-        {
-            return FormatTime(endTime);
-        }
-
-        if (endTime is null)
-        {
-            return FormatTime(startTime);
-        }
-
-        return $"{FormatTime(startTime)} - {FormatTime(endTime)}";
+    private Task HandleAttendingChangedAsync(AktivitetModel aktivitetModel, bool attending)
+    {
+        return string.IsNullOrWhiteSpace(aktivitetModel.Id)
+            ? Task.CompletedTask
+            : SetAttending(aktivitetModel.Id, attending);
     }
     private async Task SetAttending(string aktivitetId, bool attending)
     {
@@ -479,7 +404,5 @@
             var list = await participationApiService.GetByAktivitetIdAsync(aktivitetId);
             _participations[aktivitetId] = list;
         }
-    }
-    
     }
 }

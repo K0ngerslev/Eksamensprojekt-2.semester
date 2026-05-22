@@ -1,0 +1,156 @@
+@using Core.Model
+
+<article class="activity-card">
+    <div class="activity-card__top">
+        <h3>@Aktivitet.ActivityType</h3>
+        <span>@FormatDate(Aktivitet.Date) kl. @FormatTimeRange(Aktivitet.StartTime, Aktivitet.EndTime)</span>
+    </div>
+
+    <div class="activity-card__details">
+        <p><strong>Sted:</strong> @Aktivitet.FieldOrLocation</p>
+
+        @if (!string.IsNullOrWhiteSpace(Aktivitet.ChangingRoom))
+        {
+            <p><strong>Omklædning:</strong> @Aktivitet.ChangingRoom</p>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Aktivitet.AdditionalNotes))
+        {
+            <p><strong>Noter:</strong> @Aktivitet.AdditionalNotes</p>
+        }
+    </div>
+
+    <div class="activity-card__actions">
+        @if (CanManage)
+        {
+            <button type="button" class="activity-card__button" @onclick="HandleEditAsync">Rediger</button>
+            <button type="button" class="activity-card__button activity-card__button--danger" @onclick="HandleDeleteAsync">Slet</button>
+        }
+
+        @if (CanManage && HasAktivitetId)
+        {
+            <button type="button" class="activity-card__button" @onclick="HandleToggleParticipationsAsync">
+                @(IsParticipationsExpanded ? "Skjul deltagere" : "Vis deltagere")
+            </button>
+        }
+
+        @if (HasAktivitetId && IsParticipationsExpanded)
+        {
+            <div class="participation-list">
+                <p><strong>Deltager (@Attending.Count):</strong></p>
+                @if (Attending.Count == 0)
+                {
+                    <span class="participation-none">Ingen endnu</span>
+                }
+                else
+                {
+                    @foreach (var participation in Attending)
+                    {
+                        <span class="participation-pill participation-pill--yes">@participation.UserName</span>
+                    }
+                }
+
+                <p style="margin-top: 0.5rem"><strong>Deltager ikke (@NotAttending.Count):</strong></p>
+                @if (NotAttending.Count == 0)
+                {
+                    <span class="participation-none">Ingen endnu</span>
+                }
+                else
+                {
+                    @foreach (var participation in NotAttending)
+                    {
+                        <span class="participation-pill participation-pill--no">@participation.UserName</span>
+                    }
+                }
+            </div>
+        }
+
+        @if (HasAktivitetId && CanRespond)
+        {
+            <button type="button"
+                    class="activity-card__button @(Answer == true ? "attend--yes" : "")"
+                    @onclick="() => OnSetAttending.InvokeAsync(true)">
+                Deltager
+            </button>
+            <button type="button"
+                    class="activity-card__button @(Answer == false ? "attend--no" : "")"
+                    @onclick="() => OnSetAttending.InvokeAsync(false)">
+                Deltager ikke
+            </button>
+        }
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired]
+    public AktivitetModel Aktivitet { get; set; } = default!;
+
+    [Parameter]
+    public bool CanManage { get; set; }
+
+    [Parameter]
+    public bool CanRespond { get; set; }
+
+    [Parameter]
+    public bool? Answer { get; set; }
+
+    [Parameter]
+    public bool IsParticipationsExpanded { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<Participation> Participations { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<AktivitetModel> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<AktivitetModel> OnDelete { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnToggleParticipations { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnSetAttending { get; set; }
+
+    private bool HasAktivitetId => !string.IsNullOrWhiteSpace(Aktivitet.Id);
+
+    private List<Participation> Attending => Participations.Where(participation => participation.IsAttending).ToList();
+
+    private List<Participation> NotAttending => Participations.Where(participation => !participation.IsAttending).ToList();
+
+    private Task HandleEditAsync() => OnEdit.InvokeAsync(Aktivitet);
+
+    private Task HandleDeleteAsync() => OnDelete.InvokeAsync(Aktivitet);
+
+    private Task HandleToggleParticipationsAsync() => OnToggleParticipations.InvokeAsync(Aktivitet.Id!);
+
+    private static string FormatDate(DateOnly? date)
+    {
+        return date?.ToString("dd/MM/yyyy") ?? "-";
+    }
+
+    private static string FormatTime(TimeOnly? time)
+    {
+        return time?.ToString("HH:mm") ?? "-";
+    }
+
+    private static string FormatTimeRange(TimeOnly? startTime, TimeOnly? endTime)
+    {
+        if (startTime is null && endTime is null)
+        {
+            return "-";
+        }
+
+        if (startTime is null)
+        {
+            return FormatTime(endTime);
+        }
+
+        if (endTime is null)
+        {
+            return FormatTime(startTime);
+        }
+
+        return $"{FormatTime(startTime)} - {FormatTime(endTime)}";
+    }
+}

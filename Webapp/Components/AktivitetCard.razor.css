@@ -1,0 +1,114 @@
+.activity-card {
+    padding: 1rem 1.25rem;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.25);
+}
+
+.activity-card__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+    margin-bottom: 0.75rem;
+}
+
+.activity-card__top h3,
+.activity-card__details p {
+    margin: 0;
+}
+
+.activity-card__details {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.activity-card__actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.activity-card__button {
+    border: none;
+    border-radius: 10px;
+    padding: 0.55rem 0.85rem;
+    cursor: pointer;
+    background: #ececec;
+    color: #111;
+    font-weight: 600;
+    transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.activity-card__button:hover,
+.activity-card__button:focus-visible {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+}
+
+.activity-card__button--danger {
+    background: #c62828;
+    color: #fff;
+}
+
+.attend--yes {
+    background: #1f8f4e;
+    color: #fff;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.22);
+}
+
+.attend--no {
+    background: #b93838;
+    color: #fff;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.22);
+}
+
+.participation-list {
+    flex: 1 0 100%;
+    margin-top: 0.25rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.participation-list p {
+    margin: 0;
+}
+
+.participation-pill {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0.15rem 0.2rem 0 0;
+}
+
+.participation-pill--yes {
+    background: rgba(31, 143, 78, 0.25);
+    color: #9ff0bc;
+}
+
+.participation-pill--no {
+    background: rgba(185, 56, 56, 0.25);
+    color: #ffb0b0;
+}
+
+.participation-none {
+    font-style: italic;
+    opacity: 0.6;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 640.98px) {
+    .activity-card__top {
+        grid-template-columns: 1fr;
+        display: grid;
+        gap: 0.4rem;
+    }
+}
