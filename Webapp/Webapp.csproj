@@ -19,4 +19,13 @@
       <Folder Include="wwwroot\sample-data\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Pages\Teamchat.razor.css">
+        <DependentUpon>Teamchat.razor.razor</DependentUpon>
+      </None>
+      <None Update="Pages\Teamchat.trcss">
+        <DependentUpon>Teamchat.trrazor</DependentUpon>
+      </None>
+    </ItemGroup>
+
 </Project>
