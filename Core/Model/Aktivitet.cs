@@ -3,47 +3,37 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Core.Model;
 
+// Modelklasse som repræsenterer en aktivitet i systemet.
 public class Aktivitet
 {
+    // MongoDB bruger dette felt som dokumentets unikke id.
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     [BsonIgnoreIfNull]
     public string? Id { get; set; }
 
+    // Beskriver typen af aktivitet, f.eks. træning eller kamp.
     public string? ActivityType { get; set; }
 
+    // Angiver hvilken dato aktiviteten foregår på.
     public DateOnly? Date { get; set; }
 
-    // Gemmes som "HH:mm" string i MongoDB for at undgå serialiseringsproblemer med TimeOnly
-    [BsonElement("StartTime")]
-    public string? StartTimeString { get; set; }
+    // Angiver hvilket tidspunkt aktiviteten starter.
+    [BsonElement("Time")]
+    public TimeOnly? StartTime { get; set; }
 
-    [BsonElement("EndTime")]
-    public string? EndTimeString { get; set; }
+    // Angiver hvilket tidspunkt aktiviteten slutter.
+    [BsonIgnoreIfNull]
+    public TimeOnly? EndTime { get; set; }
 
-    // Hjælpeegenskaber til resten af koden — bruges ikke af MongoDB
-    [BsonIgnore]
-    public TimeOnly? StartTime
-    {
-        get => TimeOnly.TryParse(StartTimeString, out var t) ? t : null;
-        set => StartTimeString = value?.ToString("HH:mm");
-    }
-
-    [BsonIgnore]
-    public TimeOnly? EndTime
-    {
-        get => TimeOnly.TryParse(EndTimeString, out var t) ? t : null;
-        set => EndTimeString = value?.ToString("HH:mm");
-    }
-
+    // Indeholder information om bane eller lokation.
     public string? FieldOrLocation { get; set; }
 
-    [BsonIgnoreIfNull]
+    // Indeholder eventuelt omklædningsrum for aktiviteten.
     public string? ChangingRoom { get; set; }
 
-    [BsonIgnoreIfNull]
+    // Indeholder ekstra noter til aktiviteten.
     public string? AdditionalNotes { get; set; }
-
     public object? Name { get; set; }
     public object? Description { get; set; }
     public object? PublishedDate { get; set; }
