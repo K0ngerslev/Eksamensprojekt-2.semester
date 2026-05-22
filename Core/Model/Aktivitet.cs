@@ -34,5 +34,4 @@ public class Aktivitet
 
     // Indeholder ekstra noter til aktiviteten.
     public string? AdditionalNotes { get; set; }
-    public object? Description { get; set; }
 }
