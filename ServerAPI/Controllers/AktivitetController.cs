@@ -24,7 +24,7 @@ public class AktivitetController : ControllerBase
 
     // Henter alle aktiviteter fra databasen og returnerer dem som et svar.
     [HttpGet]
-    public async Task<ActionResult<List<Aktivitet>>> GetAll()
+    public async Task<ActionResult<List<AktivitetModel>>> GetAll()
     {
         var aktiviteter = await repo.GetAllAsync();
         return Ok(aktiviteter);
@@ -32,7 +32,7 @@ public class AktivitetController : ControllerBase
 
     // Henter en enkelt aktivitet ud fra dens id.
     [HttpGet("{id}")]
-    public async Task<ActionResult<Aktivitet>> GetById(string id)
+    public async Task<ActionResult<AktivitetModel>> GetById(string id)
     {
         // Stopper requesten, hvis id mangler eller kun indeholder mellemrum.
         if (string.IsNullOrWhiteSpace(id))
@@ -55,7 +55,7 @@ public class AktivitetController : ControllerBase
 
     // Opretter en ny aktivitet ud fra data sendt i request body.
     [HttpPost]
-    public async Task<ActionResult<Aktivitet>> Create([FromBody] AktivitetRequest request)
+    public async Task<ActionResult<AktivitetModel>> Create([FromBody] AktivitetRequest request)
     {
         // Validerer input før aktiviteten gemmes.
         var aktivitet = BuildAktivitet(request);
@@ -75,7 +75,7 @@ public class AktivitetController : ControllerBase
 
     // Opdaterer en eksisterende aktivitet ud fra id og nye værdier.
     [HttpPut("{id}")]
-    public async Task<ActionResult<Aktivitet>> Update(string id, [FromBody] AktivitetRequest request)
+    public async Task<ActionResult<AktivitetModel>> Update(string id, [FromBody] AktivitetRequest request)
     {
         // Stopper requesten, hvis id mangler eller kun indeholder mellemrum.
         if (string.IsNullOrWhiteSpace(id))
@@ -124,80 +124,80 @@ public class AktivitetController : ControllerBase
     }
 
     // Samler al validering af aktivitetens felter i controlleren.
-    private ActionResult? ValidateAktivitet(Aktivitet aktivitet, AktivitetRequest request)
+    private ActionResult? ValidateAktivitet(AktivitetModel aktivitetModel, AktivitetRequest request)
     {
         // Rydder input op, så unødige mellemrum ikke giver dårlige data.
-        NormalizeAktivitet(aktivitet);
+        NormalizeAktivitet(aktivitetModel);
 
         // Tjekker at aktivitetstypen er udfyldt.
-        if (string.IsNullOrWhiteSpace(aktivitet.ActivityType))
+        if (string.IsNullOrWhiteSpace(aktivitetModel.ActivityType))
         {
-            ModelState.AddModelError(nameof(aktivitet.ActivityType), "Aktivitetstype mangler.");
+            ModelState.AddModelError(nameof(aktivitetModel.ActivityType), "Aktivitetstype mangler.");
         }
         // Tjekker at aktivitetstypen holder sig inden for den tilladte længde.
-        else if (aktivitet.ActivityType.Length is < 2 or > 50)
+        else if (aktivitetModel.ActivityType.Length is < 2 or > 50)
         {
-            ModelState.AddModelError(nameof(aktivitet.ActivityType), "Activitetstypen skal være mellem 2 og 50 tegn.");
+            ModelState.AddModelError(nameof(aktivitetModel.ActivityType), "Activitetstypen skal være mellem 2 og 50 tegn.");
         }
 
         // Tjekker at der er valgt en dato.
         if (string.IsNullOrWhiteSpace(request.Date))
         {
-            ModelState.AddModelError(nameof(aktivitet.Date), "Dato mangler.");
+            ModelState.AddModelError(nameof(aktivitetModel.Date), "Dato mangler.");
         }
-        else if (aktivitet.Date is null)
+        else if (aktivitetModel.Date is null)
         {
-            ModelState.AddModelError(nameof(aktivitet.Date), "Dato er ugyldig.");
+            ModelState.AddModelError(nameof(aktivitetModel.Date), "Dato er ugyldig.");
         }
 
         // Tjekker at der er valgt et tidspunkt.
         if (string.IsNullOrWhiteSpace(request.StartTime))
         {
-            ModelState.AddModelError(nameof(aktivitet.StartTime), "Starttid mangler.");
+            ModelState.AddModelError(nameof(aktivitetModel.StartTime), "Starttid mangler.");
         }
-        else if (aktivitet.StartTime is null)
+        else if (aktivitetModel.StartTime is null)
         {
-            ModelState.AddModelError(nameof(aktivitet.StartTime), "Starttid er ugyldig.");
+            ModelState.AddModelError(nameof(aktivitetModel.StartTime), "Starttid er ugyldig.");
         }
 
         if (string.IsNullOrWhiteSpace(request.EndTime))
         {
-            ModelState.AddModelError(nameof(aktivitet.EndTime), "Sluttid mangler.");
+            ModelState.AddModelError(nameof(aktivitetModel.EndTime), "Sluttid mangler.");
         }
-        else if (aktivitet.EndTime is null)
+        else if (aktivitetModel.EndTime is null)
         {
-            ModelState.AddModelError(nameof(aktivitet.EndTime), "Sluttid er ugyldig.");
+            ModelState.AddModelError(nameof(aktivitetModel.EndTime), "Sluttid er ugyldig.");
         }
-        else if (aktivitet.StartTime is not null && aktivitet.EndTime <= aktivitet.StartTime)
+        else if (aktivitetModel.StartTime is not null && aktivitetModel.EndTime <= aktivitetModel.StartTime)
         {
-            ModelState.AddModelError(nameof(aktivitet.EndTime), "Sluttid skal ligge efter starttid.");
+            ModelState.AddModelError(nameof(aktivitetModel.EndTime), "Sluttid skal ligge efter starttid.");
         }
 
         // Tjekker at sted/bane er udfyldt.
-        if (string.IsNullOrWhiteSpace(aktivitet.FieldOrLocation))
+        if (string.IsNullOrWhiteSpace(aktivitetModel.FieldOrLocation))
         {
-            ModelState.AddModelError(nameof(aktivitet.FieldOrLocation), "Bane mangler");
+            ModelState.AddModelError(nameof(aktivitetModel.FieldOrLocation), "Bane mangler");
         }
 
         // Tjekker at omklædningsrum ikke er for langt.
-        if (aktivitet.ChangingRoom?.Length > 100)
+        if (aktivitetModel.ChangingRoom?.Length > 100)
         {
-            ModelState.AddModelError(nameof(aktivitet.ChangingRoom), "Omklædningrum må ikke fylde mere end 100 tegn.");
+            ModelState.AddModelError(nameof(aktivitetModel.ChangingRoom), "Omklædningrum må ikke fylde mere end 100 tegn.");
         }
 
         // Tjekker at ekstra noter ikke er for lange.
-        if (aktivitet.AdditionalNotes?.Length > 500)
+        if (aktivitetModel.AdditionalNotes?.Length > 500)
         {
-            ModelState.AddModelError(nameof(aktivitet.AdditionalNotes), "Noter må ikke være mere end 500 tegn.");
+            ModelState.AddModelError(nameof(aktivitetModel.AdditionalNotes), "Noter må ikke være mere end 500 tegn.");
         }
 
         // Returnerer enten null ved gyldig model eller en samlet valideringsfejl.
         return ModelState.IsValid ? null : ValidationProblem(ModelState);
     }
 
-    private static Aktivitet BuildAktivitet(AktivitetRequest request)
+    private static AktivitetModel BuildAktivitet(AktivitetRequest request)
     {
-        return new Aktivitet
+        return new AktivitetModel
         {
             ActivityType = request.ActivityType,
             Date = ParseDate(request.Date),
@@ -210,12 +210,12 @@ public class AktivitetController : ControllerBase
     }
 
     // Renser tekstfelter ved at trimme mellemrum og sætte tomme valgfrie felter til null.
-    private static void NormalizeAktivitet(Aktivitet aktivitet)
+    private static void NormalizeAktivitet(AktivitetModel aktivitetModel)
     {
-        aktivitet.ActivityType = aktivitet.ActivityType?.Trim();
-        aktivitet.FieldOrLocation = aktivitet.FieldOrLocation?.Trim();
-        aktivitet.ChangingRoom = string.IsNullOrWhiteSpace(aktivitet.ChangingRoom) ? null : aktivitet.ChangingRoom.Trim();
-        aktivitet.AdditionalNotes = string.IsNullOrWhiteSpace(aktivitet.AdditionalNotes) ? null : aktivitet.AdditionalNotes.Trim();
+        aktivitetModel.ActivityType = aktivitetModel.ActivityType?.Trim();
+        aktivitetModel.FieldOrLocation = aktivitetModel.FieldOrLocation?.Trim();
+        aktivitetModel.ChangingRoom = string.IsNullOrWhiteSpace(aktivitetModel.ChangingRoom) ? null : aktivitetModel.ChangingRoom.Trim();
+        aktivitetModel.AdditionalNotes = string.IsNullOrWhiteSpace(aktivitetModel.AdditionalNotes) ? null : aktivitetModel.AdditionalNotes.Trim();
     }
 
     private static DateOnly? ParseDate(string? value)

@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace Core.Model;
 
 // Modelklasse som repræsenterer en aktivitet i systemet.
-public class Aktivitet
+public class AktivitetModel
 {
     // MongoDB bruger dette felt som dokumentets unikke id.
     [BsonId]

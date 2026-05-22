@@ -143,17 +143,17 @@
                 </div>
             }
 
-            <EditForm Model="draftAktivitet" OnSubmit="HandleSubmitAsync">
+            <EditForm Model="_draftAktivitetModel" OnSubmit="HandleSubmitAsync">
                 <div class="activity-modal__body">
                     <div class="activity-form__group">
                         <label for="activity-type">Aktivitetstype</label>
-                        <InputText id="activity-type" class="form-control" @bind-Value="draftAktivitet.ActivityType" />
+                        <InputText id="activity-type" class="form-control" @bind-Value="_draftAktivitetModel.ActivityType" />
                     </div>
 
                     <div class="activity-form__row">
                         <div class="activity-form__group">
                             <label for="activity-date">Dato</label>
-                            <input id="activity-date" class="form-control" type="date" value="@draftDate" @onchange="HandleDateChanged" />
+                            <input id="activity-date" class="form-control" type="date" value="@SelectedDate" @onchange="HandleDateChanged" />
                         </div>
 
                         <div class="activity-form__group">
@@ -169,17 +169,17 @@
 
                     <div class="activity-form__group">
                         <label for="activity-location">Bane / sted</label>
-                        <InputText id="activity-location" class="form-control" @bind-Value="draftAktivitet.FieldOrLocation" />
+                        <InputText id="activity-location" class="form-control" @bind-Value="_draftAktivitetModel.FieldOrLocation" />
                     </div>
 
                     <div class="activity-form__group">
                         <label for="activity-changing-room">Omklædningsrum</label>
-                        <InputText id="activity-changing-room" class="form-control" @bind-Value="draftAktivitet.ChangingRoom" />
+                        <InputText id="activity-changing-room" class="form-control" @bind-Value="_draftAktivitetModel.ChangingRoom" />
                     </div>
 
                     <div class="activity-form__group">
                         <label for="activity-notes">Yderligere noter</label>
-                        <InputTextArea id="activity-notes" class="form-control" @bind-Value="draftAktivitet.AdditionalNotes" />
+                        <InputTextArea id="activity-notes" class="form-control" @bind-Value="_draftAktivitetModel.AdditionalNotes" />
                     </div>
                 </div>
 
@@ -193,7 +193,7 @@
 }
 
 @code {
-    private readonly List<Aktivitet> aktiviteter = new();
+    private readonly List<AktivitetModel> aktiviteter = new();
     private readonly List<string> validationErrors = new();
     // aktivitets-id -> denne brugers svar; null betyder endnu intet svar
     private readonly Dictionary<string, bool?> myAnswers = new();
@@ -201,11 +201,11 @@
     private readonly HashSet<string> _expandedActivities = new();
     
     
-    private Aktivitet draftAktivitet = new();
+    private AktivitetModel _draftAktivitetModel = new();
     private bool isDialogOpen;
     private bool isEditing;
     private string? editingAktivitetId;
-    private string? draftDate;
+    private string? SelectedDate;
     private string? draftStartTime;
     private string? draftEndTime;
 
@@ -237,26 +237,29 @@
         isEditing = false;
         isDialogOpen = true;
     }
-
-    private void OpenEditDialog(Aktivitet aktivitet)
+    
+    private void OpenEditDialog(AktivitetModel aktivitetModel)
     {
         validationErrors.Clear();
         isEditing = true;
-        editingAktivitetId = aktivitet.Id;
-        draftAktivitet = new Aktivitet
+        editingAktivitetId = aktivitetModel.Id;
+        _draftAktivitetModel = new AktivitetModel
         {
-            Id = aktivitet.Id,
-            ActivityType = aktivitet.ActivityType,
-            Date = aktivitet.Date,
-            StartTime = aktivitet.StartTime,
-            EndTime = aktivitet.EndTime,
-            FieldOrLocation = aktivitet.FieldOrLocation,
-            ChangingRoom = aktivitet.ChangingRoom,
-            AdditionalNotes = aktivitet.AdditionalNotes
+            Id = aktivitetModel.Id,
+            ActivityType = aktivitetModel.ActivityType,
+            Date = aktivitetModel.Date,
+            StartTime = aktivitetModel.StartTime,
+            EndTime = aktivitetModel.EndTime,
+            FieldOrLocation = aktivitetModel.FieldOrLocation,
+            ChangingRoom = aktivitetModel.ChangingRoom,
+            AdditionalNotes = aktivitetModel.AdditionalNotes
         };
-        draftDate = aktivitet.Date?.ToString("yyyy-MM-dd");
-        draftStartTime = aktivitet.StartTime?.ToString("HH:mm");
-        draftEndTime = aktivitet.EndTime?.ToString("HH:mm");
+        if (System.DateTime.TryParse(aktivitetModel.Date?.ToString(), out var parsedDate))
+        {
+            SelectedDate = parsedDate.ToString("yyyy-MM-dd");
+        }
+        draftStartTime = aktivitetModel.StartTime?.ToString("HH:mm");
+        draftEndTime = aktivitetModel.EndTime?.ToString("HH:mm");
         isDialogOpen = true;
     }
 
@@ -268,7 +271,7 @@
 
     private void HandleDateChanged(ChangeEventArgs args)
     {
-        draftDate = args.Value?.ToString();
+        SelectedDate = args.Value?.ToString();
     }
 
     private void HandleStartTimeChanged(ChangeEventArgs args)
@@ -288,13 +291,13 @@
 
         var request = new AktivitetRequest
         {
-            ActivityType = draftAktivitet.ActivityType,
-            Date = draftDate,
+            ActivityType = _draftAktivitetModel.ActivityType,
+            Date = SelectedDate,
             StartTime = draftStartTime,
             EndTime = draftEndTime,
-            FieldOrLocation = draftAktivitet.FieldOrLocation,
-            ChangingRoom = draftAktivitet.ChangingRoom,
-            AdditionalNotes = draftAktivitet.AdditionalNotes
+            FieldOrLocation = _draftAktivitetModel.FieldOrLocation,
+            ChangingRoom = _draftAktivitetModel.ChangingRoom,
+            AdditionalNotes = _draftAktivitetModel.AdditionalNotes
         };
         var response = isEditing && !string.IsNullOrWhiteSpace(editingAktivitetId)
             ? await aktivitetApiService.UpdateAsync(editingAktivitetId, request)
@@ -313,37 +316,37 @@
 
     private void ResetDraft()
     {
-        draftAktivitet = new Aktivitet();
+        _draftAktivitetModel = new AktivitetModel();
         editingAktivitetId = null;
         isEditing = false;
-        draftDate = DateTime.Today.ToString("yyyy-MM-dd");
-        draftStartTime = DateTime.Now.ToString("HH:mm");
-        draftEndTime = DateTime.Now.AddHours(1).ToString("HH:mm");
+        SelectedDate = System.DateTime.Today.ToString("yyyy-MM-dd");
+        draftStartTime = System.DateTime.Now.ToString("HH:mm");
+        draftEndTime = System.DateTime.Now.AddHours(1).ToString("HH:mm");
         validationErrors.Clear();
     }
 
     private void NormalizeDraft()
     {
-        draftAktivitet.ActivityType = draftAktivitet.ActivityType?.Trim();
-        draftAktivitet.FieldOrLocation = draftAktivitet.FieldOrLocation?.Trim();
-        draftAktivitet.ChangingRoom = string.IsNullOrWhiteSpace(draftAktivitet.ChangingRoom)
+        _draftAktivitetModel.ActivityType = _draftAktivitetModel.ActivityType?.Trim();
+        _draftAktivitetModel.FieldOrLocation = _draftAktivitetModel.FieldOrLocation?.Trim();
+        _draftAktivitetModel.ChangingRoom = string.IsNullOrWhiteSpace(_draftAktivitetModel.ChangingRoom)
             ? null
-            : draftAktivitet.ChangingRoom.Trim();
-        draftAktivitet.AdditionalNotes = string.IsNullOrWhiteSpace(draftAktivitet.AdditionalNotes)
+            : _draftAktivitetModel.ChangingRoom.Trim();
+        _draftAktivitetModel.AdditionalNotes = string.IsNullOrWhiteSpace(_draftAktivitetModel.AdditionalNotes)
             ? null
-            : draftAktivitet.AdditionalNotes.Trim();
+            : _draftAktivitetModel.AdditionalNotes.Trim();
     }
 
-    private async Task DeleteAktivitetAsync(Aktivitet aktivitet)
+    private async Task DeleteAktivitetAsync(AktivitetModel aktivitetModel)
     {
-        if (string.IsNullOrWhiteSpace(aktivitet.Id))
+        if (string.IsNullOrWhiteSpace(aktivitetModel.Id))
         {
             validationErrors.Clear();
             validationErrors.Add("Aktiviteten kan ikke slettes uden et id.");
             return;
         }
 
-        var response = await aktivitetApiService.DeleteAsync(aktivitet.Id);
+        var response = await aktivitetApiService.DeleteAsync(aktivitetModel.Id);
         if (!response.IsSuccessStatusCode)
         {
             validationErrors.Clear();
@@ -351,7 +354,7 @@
             return;
         }
 
-        aktiviteter.Remove(aktivitet);
+        aktiviteter.Remove(aktivitetModel);
     }
 
     private async Task ReloadAktiviteterAsync()

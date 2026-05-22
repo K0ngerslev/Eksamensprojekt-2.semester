@@ -12,9 +12,9 @@ public class AktivitetApiService
         this.httpClient = httpClient;
     }
 
-    public async Task<List<Aktivitet>> GetAllAsync()
+    public async Task<List<AktivitetModel>> GetAllAsync()
     {
-        return await httpClient.GetFromJsonAsync<List<Aktivitet>>("http://localhost:5243/api/Aktivitet") ?? [];
+        return await httpClient.GetFromJsonAsync<List<AktivitetModel>>("http://localhost:5243/api/Aktivitet") ?? [];
     }
 
     public Task<HttpResponseMessage> AddAsync(AktivitetRequest aktivitet)
@@ -32,7 +32,7 @@ public class AktivitetApiService
         return httpClient.DeleteAsync($"http://localhost:5243/api/Aktivitet/{id}");
     }
 
-    public static async Task<List<Aktivitet>?> Httpclient()
+    public static async Task<List<AktivitetModel>?> Httpclient()
     {
         throw new NotImplementedException();
     }
