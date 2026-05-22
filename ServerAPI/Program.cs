@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IAktivitetRepository, AktivitetRepository>();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-builder.Services.AddScoped<IDeltagerRepository, DeltagerRepository>();
+builder.Services.AddScoped<IParticipationRepository, ParticipationRepository>();
 
 builder.Services.AddCors(options =>
 {

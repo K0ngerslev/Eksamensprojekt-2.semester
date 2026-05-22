@@ -105,7 +105,7 @@
     box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.22);
 }
 
-.deltager-list {
+.participation-list {
     flex: 1 0 100%;
     margin-top: 0.25rem;
     padding: 0.75rem 1rem;
@@ -116,11 +116,11 @@
     gap: 0.3rem;
 }
 
-.deltager-list p {
+.participation-list p {
     margin: 0;
 }
 
-.deltager-pill {
+.participation-pill {
     display: inline-block;
     padding: 0.2rem 0.65rem;
     border-radius: 999px;
@@ -129,17 +129,17 @@
     margin: 0.15rem 0.2rem 0 0;
 }
 
-.deltager-pill--yes {
+.participation-pill--yes {
     background: rgba(31, 143, 78, 0.25);
     color: #9ff0bc;
 }
 
-.deltager-pill--no {
+.participation-pill--no {
     background: rgba(185, 56, 56, 0.25);
     color: #ffb0b0;
 }
 
-.deltager-none {
+.participation-none {
     font-style: italic;
     opacity: 0.6;
     font-size: 0.9rem;
