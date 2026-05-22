@@ -29,37 +29,37 @@
 
         @if (CanManage && HasAktivitetId)
         {
-            <button type="button" class="activity-card__button" @onclick="HandleToggleParticipationsAsync">
-                @(IsParticipationsExpanded ? "Skjul deltagere" : "Vis deltagere")
+            <button type="button" class="activity-card__button" @onclick="HandleToggleDeltagereAsync">
+                @(IsDeltagereExpanded ? "Skjul deltagere" : "Vis deltagere")
             </button>
         }
 
-        @if (HasAktivitetId && IsParticipationsExpanded)
+        @if (HasAktivitetId && IsDeltagereExpanded)
         {
-            <div class="participation-list">
+            <div class="deltager-list">
                 <p><strong>Deltager (@Attending.Count):</strong></p>
                 @if (Attending.Count == 0)
                 {
-                    <span class="participation-none">Ingen endnu</span>
+                    <span class="deltager-none">Ingen endnu</span>
                 }
                 else
                 {
-                    @foreach (var participation in Attending)
+                    @foreach (var deltager in Attending)
                     {
-                        <span class="participation-pill participation-pill--yes">@participation.UserName</span>
+                        <span class="deltager-pill deltager-pill--yes">@deltager.UserName</span>
                     }
                 }
 
                 <p style="margin-top: 0.5rem"><strong>Deltager ikke (@NotAttending.Count):</strong></p>
                 @if (NotAttending.Count == 0)
                 {
-                    <span class="participation-none">Ingen endnu</span>
+                    <span class="deltager-none">Ingen endnu</span>
                 }
                 else
                 {
-                    @foreach (var participation in NotAttending)
+                    @foreach (var deltager in NotAttending)
                     {
-                        <span class="participation-pill participation-pill--no">@participation.UserName</span>
+                        <span class="deltager-pill deltager-pill--no">@deltager.UserName</span>
                     }
                 }
             </div>
@@ -95,10 +95,10 @@
     public bool? Answer { get; set; }
 
     [Parameter]
-    public bool IsParticipationsExpanded { get; set; }
+    public bool IsDeltagereExpanded { get; set; }
 
     [Parameter]
-    public IReadOnlyList<Participation> Participations { get; set; } = [];
+    public IReadOnlyList<Deltager> Deltagere { get; set; } = [];
 
     [Parameter]
     public EventCallback<AktivitetModel> OnEdit { get; set; }
@@ -107,22 +107,22 @@
     public EventCallback<AktivitetModel> OnDelete { get; set; }
 
     [Parameter]
-    public EventCallback<string> OnToggleParticipations { get; set; }
+    public EventCallback<string> OnToggleDeltagere { get; set; }
 
     [Parameter]
     public EventCallback<bool> OnSetAttending { get; set; }
 
     private bool HasAktivitetId => !string.IsNullOrWhiteSpace(Aktivitet.Id);
 
-    private List<Participation> Attending => Participations.Where(participation => participation.IsAttending).ToList();
+    private List<Deltager> Attending => Deltagere.Where(deltager => deltager.IsAttending).ToList();
 
-    private List<Participation> NotAttending => Participations.Where(participation => !participation.IsAttending).ToList();
+    private List<Deltager> NotAttending => Deltagere.Where(deltager => !deltager.IsAttending).ToList();
 
     private Task HandleEditAsync() => OnEdit.InvokeAsync(Aktivitet);
 
     private Task HandleDeleteAsync() => OnDelete.InvokeAsync(Aktivitet);
 
-    private Task HandleToggleParticipationsAsync() => OnToggleParticipations.InvokeAsync(Aktivitet.Id!);
+    private Task HandleToggleDeltagereAsync() => OnToggleDeltagere.InvokeAsync(Aktivitet.Id!);
 
     private static string FormatDate(DateOnly? date)
     {

@@ -4,7 +4,7 @@
 @using Core.Model
 @using Eksamensprojekt_2.semester.Components
 @inject WebApp.Service.AktivitetApiService aktivitetApiService
-@inject WebApp.Service.ParticipationApiService participationApiService
+@inject WebApp.Service.DeltagerApiService deltagerApiService
 @inject WebApp.Service.LoginService LoginService 
 
 
@@ -40,11 +40,11 @@
                                CanManage="@CanManageActivities"
                                CanRespond="@CanRespondToActivities"
                                Answer="@GetMyAnswer(aktivitet.Id)"
-                               IsParticipationsExpanded="@IsParticipationsExpanded(aktivitet.Id)"
-                               Participations="@GetParticipations(aktivitet.Id)"
+                               IsDeltagereExpanded="@IsDeltagereExpanded(aktivitet.Id)"
+                               Deltagere="@GetDeltagere(aktivitet.Id)"
                                OnEdit="OpenEditDialog"
                                OnDelete="DeleteAktivitetAsync"
-                               OnToggleParticipations="ToggleParticipations"
+                               OnToggleDeltagere="ToggleDeltagere"
                                OnSetAttending="@(attending => HandleAttendingChangedAsync(aktivitet, attending))" />
             }
         </div>
@@ -124,7 +124,7 @@
     private readonly List<string> validationErrors = new();
     // aktivitets-id -> denne brugers svar; null betyder endnu intet svar
     private readonly Dictionary<string, bool?> myAnswers = new();
-    private readonly Dictionary<string, List<Participation>> _participations = new();
+    private readonly Dictionary<string, List<Deltager>> _deltagere = new();
     private readonly HashSet<string> _expandedActivities = new();
     
     
@@ -150,8 +150,8 @@
             // Henter deltagelseslisten for hver aktivitet og gemmer kun den aktuelle brugers svar.
             foreach (var a in aktiviteter.Where(a => a.Id is not null))
             {
-                var participations = await participationApiService.GetByAktivitetIdAsync(a.Id!);
-                var mine = participations.FirstOrDefault(p => p.UserName == userName);
+                var deltagere = await deltagerApiService.GetByAktivitetIdAsync(a.Id!);
+                var mine = deltagere.FirstOrDefault(d => d.UserName == userName);
                 myAnswers[a.Id!] = mine?.IsAttending;
             }
         }
@@ -359,14 +359,14 @@
         return aktivitetId is null ? null : myAnswers.GetValueOrDefault(aktivitetId);
     }
 
-    private IReadOnlyList<Participation> GetParticipations(string? aktivitetId)
+    private IReadOnlyList<Deltager> GetDeltagere(string? aktivitetId)
     {
-        return aktivitetId is not null && _participations.TryGetValue(aktivitetId, out var participations)
-            ? participations
+        return aktivitetId is not null && _deltagere.TryGetValue(aktivitetId, out var deltagere)
+            ? deltagere
             : [];
     }
 
-    private bool IsParticipationsExpanded(string? aktivitetId)
+    private bool IsDeltagereExpanded(string? aktivitetId)
     {
         return aktivitetId is not null && _expandedActivities.Contains(aktivitetId);
     }
@@ -380,7 +380,7 @@
     private async Task SetAttending(string aktivitetId, bool attending)
     {
         var userName = LoginService.CurrentUser?.Name ?? "Ukendt";
-        await participationApiService.UpsertAsync(new Participation
+        await deltagerApiService.UpsertAsync(new Deltager
         {
             AktivitetId = aktivitetId,
             UserName = userName,
@@ -390,7 +390,7 @@
         myAnswers[aktivitetId] = attending;
     }
 
-    private async Task ToggleParticipations(string aktivitetId)
+    private async Task ToggleDeltagere(string aktivitetId)
     {
         if (_expandedActivities.Contains(aktivitetId))
         {
@@ -399,10 +399,10 @@
         }
         _expandedActivities.Add(aktivitetId);
 
-        if (!_participations.ContainsKey(aktivitetId))
+        if (!_deltagere.ContainsKey(aktivitetId))
         {
-            var list = await participationApiService.GetByAktivitetIdAsync(aktivitetId);
-            _participations[aktivitetId] = list;
+            var list = await deltagerApiService.GetByAktivitetIdAsync(aktivitetId);
+            _deltagere[aktivitetId] = list;
         }
     }
 }

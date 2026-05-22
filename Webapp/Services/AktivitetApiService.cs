@@ -31,9 +31,4 @@ public class AktivitetApiService
     {
         return httpClient.DeleteAsync($"http://localhost:5243/api/Aktivitet/{id}");
     }
-
-    public static async Task<List<AktivitetModel>?> Httpclient()
-    {
-        throw new NotImplementedException();
-    }
 }
