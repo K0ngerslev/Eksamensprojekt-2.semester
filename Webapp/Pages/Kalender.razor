@@ -1,5 +1,4 @@
 @page "/Kalender"
-@using System.Globalization
 @using System.Net.Http.Json
 @using System.Text.Json
 @using Core.Model
@@ -287,20 +286,19 @@
         validationErrors.Clear();
         NormalizeDraft();
 
-        var aktivitet = new Aktivitet
+        var request = new AktivitetRequest
         {
-            Id = isEditing ? editingAktivitetId : null,
             ActivityType = draftAktivitet.ActivityType,
-            Date = ParseDate(draftDate),
-            StartTime = ParseTime(draftStartTime),
-            EndTime = ParseTime(draftEndTime),
+            Date = draftDate,
+            StartTime = draftStartTime,
+            EndTime = draftEndTime,
             FieldOrLocation = draftAktivitet.FieldOrLocation,
             ChangingRoom = draftAktivitet.ChangingRoom,
             AdditionalNotes = draftAktivitet.AdditionalNotes
         };
         var response = isEditing && !string.IsNullOrWhiteSpace(editingAktivitetId)
-            ? await aktivitetApiService.UpdateAsync(editingAktivitetId, aktivitet)
-            : await aktivitetApiService.AddAsync(aktivitet);
+            ? await aktivitetApiService.UpdateAsync(editingAktivitetId, request)
+            : await aktivitetApiService.AddAsync(request);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -334,20 +332,6 @@
         draftAktivitet.AdditionalNotes = string.IsNullOrWhiteSpace(draftAktivitet.AdditionalNotes)
             ? null
             : draftAktivitet.AdditionalNotes.Trim();
-    }
-
-    private static DateOnly? ParseDate(string? value)
-    {
-        return DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate)
-            ? parsedDate
-            : null;
-    }
-
-    private static TimeOnly? ParseTime(string? value)
-    {
-        return TimeOnly.TryParseExact(value, new[] { "HH:mm", "HH:mm:ss" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedTime)
-            ? parsedTime
-            : null;
     }
 
     private async Task DeleteAktivitetAsync(Aktivitet aktivitet)
