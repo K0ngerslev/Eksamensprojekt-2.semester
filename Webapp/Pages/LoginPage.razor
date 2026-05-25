@@ -6,6 +6,7 @@
 @inject NavigationManager navManager
 @inject ILocalStorageService localStorage
 @inject ISessionStorageService sessionStorage
+@inject LoginService LoginService
 <PageTitle>Log ind</PageTitle>
 
 <h3>Log ind</h3>
@@ -46,11 +47,10 @@
     string errorText = "";
     
     private async Task OnClickLogin()  {
-        LoginService loginService = new();
-        User? loggedIn = loginService.ValidLogin(username, password);
+        User? loggedIn = LoginService.ValidLogin(username, password);
         if (loggedIn != null)
         {
-            loginService.SetCurrentUser(loggedIn);
+            LoginService.SetCurrentUser(loggedIn);
             await sessionStorage.SetItemAsync("user", loggedIn);
 
             navManager.NavigateTo("/" );
