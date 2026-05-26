@@ -19,7 +19,6 @@ public class AktivitetModel
     public DateOnly? Date { get; set; }
 
     // Angiver hvilket tidspunkt aktiviteten starter.
-    [BsonElement("Time")]
     public TimeOnly? StartTime { get; set; }
 
     // Angiver hvilket tidspunkt aktiviteten slutter.
