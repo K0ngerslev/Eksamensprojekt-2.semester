@@ -57,7 +57,6 @@ public class AktivitetController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<AktivitetModel>> Create([FromBody] AktivitetRequest request)
     {
-        // Validerer input før aktiviteten gemmes.
         var aktivitet = BuildAktivitet(request);
         var validationResult = ValidateAktivitet(aktivitet, request);
         if (validationResult is not null)
@@ -82,15 +81,20 @@ public class AktivitetController : ControllerBase
         {
             return BadRequest("Id is required.");
         }
-
+        var existing = await repo.GetByIdAsync(id);
+        if (existing is null)
+            return NotFound();
+        
         // Tjekker først om aktiviteten findes, før den forsøges opdateret.
         if (await repo.GetByIdAsync(id) is null)
         {
             return NotFound();
         }
 
-        // Validerer de nye værdier inden opdatering.
         var aktivitet = BuildAktivitet(request);
+        aktivitet.StartTime ??= existing.StartTime;
+        aktivitet.EndTime ??= existing.EndTime;
+        aktivitet.Date ??= existing.Date;
         var validationResult = ValidateAktivitet(aktivitet, request);
         if (validationResult is not null)
         {
@@ -123,24 +127,19 @@ public class AktivitetController : ControllerBase
         return NoContent();
     }
 
-    // Samler al validering af aktivitetens felter i controlleren.
     private ActionResult? ValidateAktivitet(AktivitetModel aktivitetModel, AktivitetRequest request)
     {
-        // Rydder input op, så unødige mellemrum ikke giver dårlige data.
         NormalizeAktivitet(aktivitetModel);
 
-        // Tjekker at aktivitetstypen er udfyldt.
         if (string.IsNullOrWhiteSpace(aktivitetModel.ActivityType))
         {
             ModelState.AddModelError(nameof(aktivitetModel.ActivityType), "Aktivitetstype mangler.");
         }
-        // Tjekker at aktivitetstypen holder sig inden for den tilladte længde.
         else if (aktivitetModel.ActivityType.Length is < 2 or > 50)
         {
             ModelState.AddModelError(nameof(aktivitetModel.ActivityType), "Activitetstypen skal være mellem 2 og 50 tegn.");
         }
 
-        // Tjekker at der er valgt en dato.
         if (string.IsNullOrWhiteSpace(request.Date))
         {
             ModelState.AddModelError(nameof(aktivitetModel.Date), "Dato mangler.");
@@ -150,7 +149,6 @@ public class AktivitetController : ControllerBase
             ModelState.AddModelError(nameof(aktivitetModel.Date), "Dato er ugyldig.");
         }
 
-        // Tjekker at der er valgt et tidspunkt.
         if (string.IsNullOrWhiteSpace(request.StartTime))
         {
             ModelState.AddModelError(nameof(aktivitetModel.StartTime), "Starttid mangler.");
@@ -173,25 +171,21 @@ public class AktivitetController : ControllerBase
             ModelState.AddModelError(nameof(aktivitetModel.EndTime), "Sluttid skal ligge efter starttid.");
         }
 
-        // Tjekker at sted/bane er udfyldt.
         if (string.IsNullOrWhiteSpace(aktivitetModel.FieldOrLocation))
         {
             ModelState.AddModelError(nameof(aktivitetModel.FieldOrLocation), "Bane mangler");
         }
 
-        // Tjekker at omklædningsrum ikke er for langt.
         if (aktivitetModel.ChangingRoom?.Length > 100)
         {
             ModelState.AddModelError(nameof(aktivitetModel.ChangingRoom), "Omklædningrum må ikke fylde mere end 100 tegn.");
         }
 
-        // Tjekker at ekstra noter ikke er for lange.
         if (aktivitetModel.AdditionalNotes?.Length > 500)
         {
             ModelState.AddModelError(nameof(aktivitetModel.AdditionalNotes), "Noter må ikke være mere end 500 tegn.");
         }
 
-        // Returnerer enten null ved gyldig model eller en samlet valideringsfejl.
         return ModelState.IsValid ? null : ValidationProblem(ModelState);
     }
 
@@ -209,7 +203,6 @@ public class AktivitetController : ControllerBase
         };
     }
 
-    // Renser tekstfelter ved at trimme mellemrum og sætte tomme valgfrie felter til null.
     private static void NormalizeAktivitet(AktivitetModel aktivitetModel)
     {
         aktivitetModel.ActivityType = aktivitetModel.ActivityType?.Trim();
