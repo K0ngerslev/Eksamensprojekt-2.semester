@@ -1,15 +1,14 @@
 @page "/TeamChat"
 @inject NavigationManager Navigation
 @inject WebApp.Service.LoginService LoginService
-@inject HttpClient Http
+@inject WebApp.Service.TeamchatAPIService TeamchatApiService
+@using WebApp.Service
+@implements IDisposable
 
 <PageTitle>Team Chat</PageTitle>
 
 <h3 class="mb-3">💬 Team Chat</h3>
 
-<p><strong>Logged ind som: @LoginService?.CurrentUser?.Name</strong></p>
-
-<!-- Chat vindue -->
 <div class="chat-container">
     @foreach (var msg in messages.OrderBy(m => m.Time))
     {
@@ -21,28 +20,28 @@
             <div class="message-text">@msg.Text</div>
         </div>
     }
-    
+
     @if (messages.Count == 0)
     {
-        <p class="text-center text-muted mt-5">Ingen beskeder endnu.!</p>
+        <p class="text-center text-muted mt-5">Ingen beskeder endnu.</p>
     }
 </div>
 
-<!-- Input felt -->
 <div class="input-area">
     <div class="input-group">
-        <input @bind="newMessage" 
-               @onkeydown="HandleEnter"
-               class="message-input form-control" 
-               placeholder="Skriv en besked her..." />
+        <textarea @bind="newMessage"
+                  @onkeydown="HandleEnter"
+                  class="message-input form-control"
+                  rows="2"
+                  placeholder="Skriv en besked her..."></textarea>
         <button class="send-btn btn btn-primary" @onclick="SendMessage">Send</button>
     </div>
 </div>
 
 @code {
-    private List<ChatMessage> messages = new();
+    private List<TeamchatAPIService.ChatMessage> messages = new();
     private string newMessage = "";
-    private System.Timers.Timer? _timer;
+    private System.Timers.Timer? timer;
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,23 +53,15 @@
 
         await LoadMessages();
 
-        _timer = new System.Timers.Timer(2000);
-        _timer.Elapsed += async (s, e) => await LoadMessages();
-        _timer.Start();
+        timer = new System.Timers.Timer(2000);
+        timer.Elapsed += async (s, e) => await LoadMessages();
+        timer.Start();
     }
 
     private async Task LoadMessages()
     {
-        try
-        {
-            var result = await Http.GetFromJsonAsync<List<ChatMessage>>("api/chat");
-            if (result != null)
-            {
-                messages = result;
-                StateHasChanged();
-            }
-        }
-        catch { }
+        messages = await TeamchatApiService.GetMessagesAsync();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SendMessage()
@@ -78,38 +69,22 @@
         if (string.IsNullOrWhiteSpace(newMessage) || LoginService?.CurrentUser == null)
             return;
 
-        var dto = new SendChatMessageDto 
-        { 
-            User = LoginService.CurrentUser.Name, 
-            Text = newMessage 
-        };
-
-        await Http.PostAsJsonAsync("api/chat", dto);
+        await TeamchatApiService.SendMessageAsync(LoginService.CurrentUser.Name, newMessage);
         newMessage = "";
         await LoadMessages();
     }
 
     private async Task HandleEnter(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter") await SendMessage();
+        if (e.Key == "Enter" && !e.ShiftKey)
+        {
+            await SendMessage();
+        }
     }
 
     public void Dispose()
     {
-        _timer?.Stop();
-        _timer?.Dispose();
-    }
-
-    public class ChatMessage
-    {
-        public string User { get; set; } = "";
-        public string Text { get; set; } = "";
-        public DateTime Time { get; set; }
-    }
-
-    public class SendChatMessageDto
-    {
-        public string User { get; set; } = "";
-        public string Text { get; set; } = "";
+        timer?.Stop();
+        timer?.Dispose();
     }
 }

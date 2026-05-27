@@ -3,11 +3,11 @@ using ServerAPI.Chat;
 
 [ApiController]
 [Route("api/chat")]
-public class ChatController : ControllerBase
+public class TeamchatController : ControllerBase
 {
     private readonly ChatRepository _repository;
 
-    public ChatController(ChatRepository repository)
+    public TeamchatController(ChatRepository repository)
     {
         _repository = repository;
     }
