@@ -13,17 +13,17 @@ public class DeltagerController : ControllerBase
     public DeltagerController(IDeltagerRepository repo) => this.repo = repo;
 
     [HttpGet("{aktivitetId}")]
-    public async Task<ActionResult<List<Deltager>>> GetByAktivitet(string aktivitetId) =>
+    public async Task<ActionResult<List<DeltagerSvar>>> GetByAktivitet(string aktivitetId) =>
         Ok(await repo.GetByAktivitetIdAsync(aktivitetId));
 
     [HttpPost]
-    public async Task<IActionResult> Upsert([FromBody] Deltager deltager)
+    public async Task<IActionResult> Upsert([FromBody] DeltagerSvar deltagerSvar)
     {
-        if (string.IsNullOrWhiteSpace(deltager.AktivitetId) ||
-            string.IsNullOrWhiteSpace(deltager.UserName))
+        if (string.IsNullOrWhiteSpace(deltagerSvar.AktivitetId) ||
+            string.IsNullOrWhiteSpace(deltagerSvar.UserName))
             return BadRequest("AktivitetId og UserName er påkrævet.");
 
-        await repo.UpsertAsync(deltager);
+        await repo.UpsertAsync(deltagerSvar);
         return NoContent();
     }
 }

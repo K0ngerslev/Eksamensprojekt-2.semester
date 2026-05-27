@@ -84,12 +84,6 @@ public class AktivitetController : ControllerBase
         var existing = await repo.GetByIdAsync(id);
         if (existing is null)
             return NotFound();
-        
-        // Tjekker først om aktiviteten findes, før den forsøges opdateret.
-        if (await repo.GetByIdAsync(id) is null)
-        {
-            return NotFound();
-        }
 
         var aktivitet = BuildAktivitet(request);
         aktivitet.StartTime ??= existing.StartTime;

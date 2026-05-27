@@ -124,7 +124,7 @@
     private readonly List<string> validationErrors = new();
     // aktivitets-id -> denne brugers svar; null betyder endnu intet svar
     private readonly Dictionary<string, bool?> myAnswers = new();
-    private readonly Dictionary<string, List<Deltager>> _deltagere = new();
+    private readonly Dictionary<string, List<DeltagerSvar>> _deltagere = new();
     private readonly HashSet<string> _expandedActivities = new();
     
     
@@ -359,7 +359,7 @@
         return aktivitetId is null ? null : myAnswers.GetValueOrDefault(aktivitetId);
     }
 
-    private IReadOnlyList<Deltager> GetDeltagere(string? aktivitetId)
+    private IReadOnlyList<DeltagerSvar> GetDeltagere(string? aktivitetId)
     {
         return aktivitetId is not null && _deltagere.TryGetValue(aktivitetId, out var deltagere)
             ? deltagere
@@ -380,7 +380,7 @@
     private async Task SetAttending(string aktivitetId, bool attending)
     {
         var userName = LoginService.CurrentUser?.Name ?? "Ukendt";
-        await deltagerApiService.UpsertAsync(new Deltager
+        await deltagerApiService.UpsertAsync(new DeltagerSvar
         {
             AktivitetId = aktivitetId,
             UserName = userName,

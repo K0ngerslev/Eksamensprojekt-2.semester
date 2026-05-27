@@ -4,6 +4,6 @@ namespace ServerAPI.Repositories;
 
 public interface IDeltagerRepository
 {
-    Task<List<Deltager>> GetByAktivitetIdAsync(string aktivitetId);
-    Task UpsertAsync(Deltager deltager); // indsæt eller opdater
+    Task<List<DeltagerSvar>> GetByAktivitetIdAsync(string aktivitetId);
+    Task UpsertAsync(DeltagerSvar deltagerSvar); // indsæt eller opdater
 }

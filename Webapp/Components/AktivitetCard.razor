@@ -98,7 +98,7 @@
     public bool IsDeltagereExpanded { get; set; }
 
     [Parameter]
-    public IReadOnlyList<Deltager> Deltagere { get; set; } = [];
+    public IReadOnlyList<DeltagerSvar> Deltagere { get; set; } = [];
 
     [Parameter]
     public EventCallback<AktivitetModel> OnEdit { get; set; }
@@ -114,9 +114,9 @@
 
     private bool HasAktivitetId => !string.IsNullOrWhiteSpace(Aktivitet.Id);
 
-    private List<Deltager> Attending => Deltagere.Where(deltager => deltager.IsAttending).ToList();
+    private List<DeltagerSvar> Attending => Deltagere.Where(deltager => deltager.IsAttending).ToList();
 
-    private List<Deltager> NotAttending => Deltagere.Where(deltager => !deltager.IsAttending).ToList();
+    private List<DeltagerSvar> NotAttending => Deltagere.Where(deltager => !deltager.IsAttending).ToList();
 
     private Task HandleEditAsync() => OnEdit.InvokeAsync(Aktivitet);
 
