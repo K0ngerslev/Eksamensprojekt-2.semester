@@ -1,81 +1,64 @@
 h3 {
-    width: min(100%, 1200px);
-    margin: 0 auto 0.75rem;
+    width: min(100%, 1100px);
+    margin: 0 auto 1rem;
     color: #fff;
-    font-size: clamp(2rem, 3vw, 3.2rem);
+    font-size: clamp(2rem, 3vw, 3rem);
     font-weight: 800;
     letter-spacing: 0.02em;
     text-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
 p {
-    width: min(100%, 1200px);
-    margin: 0 auto 1rem;
-    color: #e5eef8;
-    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+    margin: 0;
 }
 
 p strong {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.8rem 1.15rem;
-    border-radius: 999px;
-    background: rgba(15, 23, 42, 0.58);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
-    backdrop-filter: blur(10px);
+    all: unset;
 }
 
 .chat-container {
-    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    width: min(100%, 1200px);
-    min-height: clamp(440px, 66vh, 760px);
-    max-height: clamp(440px, 66vh, 760px);
-    margin: 0 auto 1.25rem;
+    gap: 1.1rem;
+    width: min(100%, 1100px);
+    min-height: 56vh;
+    max-height: 62vh;
+    margin: 0 auto 1rem;
     overflow-y: auto;
-    padding: 1.5rem;
-    border-radius: 32px;
-    background:
-        linear-gradient(180deg, rgba(7, 12, 23, 0.2), rgba(7, 12, 23, 0.52)),
-        url("https://editorial.uefa.com/resources/029a-1e097a929435-eca4c9d870b1-1000/sevilla_fc_v_as_roma_-_uefa_europa_league_final_2022_23.jpeg") center/cover no-repeat;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.32);
-}
-
-.chat-container::before {
-    content: "";
-    position: sticky;
-    top: 0;
-    display: block;
-    height: 0;
+    padding: 0.5rem 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .chat-container::-webkit-scrollbar {
-    width: 12px;
+    width: 10px;
 }
 
 .chat-container::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 999px;
 }
 
 .chat-container::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.24);
     border: 2px solid transparent;
     border-radius: 999px;
     background-clip: padding-box;
 }
 
 .message {
-    max-width: min(78%, 620px);
-    padding: 1rem 1.2rem;
+    max-width: min(68%, 560px);
+    padding: 1rem 1.15rem;
     border-radius: 24px;
     word-break: break-word;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+    text-shadow: none;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
     backdrop-filter: blur(6px);
+}
+
+.message * {
+    text-shadow: none !important;
 }
 
 .message-mine {
@@ -107,17 +90,20 @@ p strong {
 .message-header strong {
     font-size: 1rem;
     font-weight: 800;
+    text-shadow: none;
 }
 
 .message-header small {
     font-size: 0.85rem;
     font-weight: 600;
     opacity: 0.72;
+    text-shadow: none;
 }
 
 .message-text {
     font-size: 1rem;
     line-height: 1.5;
+    text-shadow: none;
 }
 
 .chat-container p.text-muted {
@@ -125,6 +111,7 @@ p strong {
     margin: auto 0;
     padding: 1rem 1.2rem;
     border-radius: 18px;
+    width: auto;
     background: rgba(255, 255, 255, 0.9);
     color: #334155 !important;
     text-shadow: none;
@@ -135,13 +122,12 @@ p strong {
     position: sticky;
     bottom: 1rem;
     z-index: 2;
-    width: min(100%, 1200px);
+    width: min(100%, 1100px);
     margin: 0 auto;
-    padding: 1rem;
-    border-radius: 30px;
-    background: rgba(255, 255, 255, 0.97);
-    border: 1px solid rgba(226, 232, 240, 0.95);
-    box-shadow: 0 28px 60px rgba(15, 23, 42, 0.2);
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .input-group {
@@ -210,10 +196,9 @@ p strong {
     }
 
     .chat-container {
-        min-height: 58vh;
+        min-height: 54vh;
         max-height: 58vh;
-        padding: 1rem;
-        border-radius: 24px;
+        padding: 0.25rem 0;
     }
 
     .message {
@@ -223,8 +208,7 @@ p strong {
 
     .input-area {
         bottom: 0.5rem;
-        padding: 0.85rem;
-        border-radius: 24px;
+        padding: 0;
     }
 
     .input-group {
