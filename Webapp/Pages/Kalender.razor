@@ -367,13 +367,20 @@
     private async Task SetAttending(string aktivitetId, bool attending)
     {
         var userName = LoginService.CurrentUser?.Name ?? "Ukendt";
-        await deltagerApiService.UpsertAsync(new DeltagerSvar
+        var response = await deltagerApiService.UpsertAsync(new DeltagerSvar
         {
             AktivitetId = aktivitetId,
             UserName = userName,
             IsAttending = attending
         });
-        // Gemmer det valgte svar lokalt, så knaptilstanden opdateres uden genindlæsning.
+
+        if (!response.IsSuccessStatusCode)
+        {
+            validationErrors.Clear();
+            validationErrors.Add("Kunne ikke gemme dit svar. Prøv igen.");
+            return;
+        }
+
         myAnswers[aktivitetId] = attending;
     }
 

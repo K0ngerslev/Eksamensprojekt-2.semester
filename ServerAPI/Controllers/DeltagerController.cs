@@ -16,7 +16,7 @@ public class DeltagerController : ControllerBase
     public async Task<ActionResult<List<DeltagerSvar>>> GetByAktivitetId(string aktivitetId)
     {
         if (string.IsNullOrWhiteSpace(aktivitetId))
-            return BadRequest("AktivitetId er påkrævet.");
+            return BadRequest(new { detail = "AktivitetId er påkrævet." });
 
         var deltagere = await repo.GetByAktivitetIdAsync(aktivitetId);
         return Ok(deltagere);
@@ -27,7 +27,7 @@ public class DeltagerController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(deltagerSvar.AktivitetId) ||
             string.IsNullOrWhiteSpace(deltagerSvar.UserName))
-            return BadRequest("AktivitetId og UserName er påkrævet.");
+            return BadRequest(new { detail = "AktivitetId og UserName er påkrævet." });
 
         await repo.UpsertAsync(deltagerSvar);
         return NoContent();
