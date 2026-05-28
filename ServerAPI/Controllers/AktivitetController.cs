@@ -34,12 +34,6 @@ public class AktivitetController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<AktivitetModel>> GetById(string id)
     {
-        // Stopper requesten, hvis id mangler eller kun indeholder mellemrum.
-        if (string.IsNullOrWhiteSpace(id))
-        {
-            return BadRequest("Id is required.");
-        }
-
         // Forsøger at finde aktiviteten i databasen.
         var aktivitet = await repo.GetByIdAsync(id);
 
@@ -76,11 +70,6 @@ public class AktivitetController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult<AktivitetModel>> Update(string id, [FromBody] AktivitetRequest request)
     {
-        // Stopper requesten, hvis id mangler eller kun indeholder mellemrum.
-        if (string.IsNullOrWhiteSpace(id))
-        {
-            return BadRequest("Id is required.");
-        }
         var existing = await repo.GetByIdAsync(id);
         if (existing is null)
             return NotFound();
@@ -104,12 +93,6 @@ public class AktivitetController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
-        // Stopper requesten, hvis id mangler eller kun indeholder mellemrum.
-        if (string.IsNullOrWhiteSpace(id))
-        {
-            return BadRequest("Id is required.");
-        }
-
         // Tjekker om aktiviteten findes, før den slettes.
         if (await repo.GetByIdAsync(id) is null)
         {
