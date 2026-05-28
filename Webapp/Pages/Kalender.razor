@@ -71,11 +71,11 @@
                 </div>
             }
 
-            <EditForm Model="_draftAktivitetModel" OnSubmit="HandleSubmitAsync">
+            <EditForm Model="draftAktivitetModel" OnSubmit="HandleSubmitAsync">
                 <div class="activity-modal__body">
                     <div class="activity-form__group">
                         <label for="activity-type">Aktivitetstype</label>
-                        <InputText id="activity-type" class="form-control" @bind-Value="_draftAktivitetModel.ActivityType" />
+                        <InputText id="activity-type" class="form-control" @bind-Value="draftAktivitetModel.ActivityType" />
                     </div>
 
                     <div class="activity-form__row">
@@ -97,17 +97,17 @@
 
                     <div class="activity-form__group">
                         <label for="activity-location">Bane / sted</label>
-                        <InputText id="activity-location" class="form-control" @bind-Value="_draftAktivitetModel.FieldOrLocation" />
+                        <InputText id="activity-location" class="form-control" @bind-Value="draftAktivitetModel.FieldOrLocation" />
                     </div>
 
                     <div class="activity-form__group">
                         <label for="activity-changing-room">Omklædningsrum</label>
-                        <InputText id="activity-changing-room" class="form-control" @bind-Value="_draftAktivitetModel.ChangingRoom" />
+                        <InputText id="activity-changing-room" class="form-control" @bind-Value="draftAktivitetModel.ChangingRoom" />
                     </div>
 
                     <div class="activity-form__group">
                         <label for="activity-notes">Yderligere noter</label>
-                        <InputTextArea id="activity-notes" class="form-control" @bind-Value="_draftAktivitetModel.AdditionalNotes" />
+                        <InputTextArea id="activity-notes" class="form-control" @bind-Value="draftAktivitetModel.AdditionalNotes" />
                     </div>
                 </div>
 
@@ -125,11 +125,11 @@
     private readonly List<string> validationErrors = new();
     // aktivitets-id -> denne brugers svar; null betyder endnu intet svar
     private readonly Dictionary<string, bool?> myAnswers = new();
-    private readonly Dictionary<string, List<DeltagerSvar>> _deltagere = new();
-    private readonly HashSet<string> _expandedActivities = new();
+    private readonly Dictionary<string, List<DeltagerSvar>> deltagere = new();
+    private readonly HashSet<string> expandedActivities = new();
     
     
-    private AktivitetModel _draftAktivitetModel = new();
+    private AktivitetModel draftAktivitetModel = new();
     private bool isDialogOpen;
     private bool isEditing;
     private string? editingAktivitetId;
@@ -171,7 +171,7 @@
         validationErrors.Clear();
         isEditing = true;
         editingAktivitetId = aktivitetModel.Id;
-        _draftAktivitetModel = new AktivitetModel
+        draftAktivitetModel = new AktivitetModel
         {
             Id = aktivitetModel.Id,
             ActivityType = aktivitetModel.ActivityType,
@@ -215,13 +215,13 @@
 
         var request = new AktivitetRequestModel
         {
-            ActivityType = _draftAktivitetModel.ActivityType,
+            ActivityType = draftAktivitetModel.ActivityType,
             Date = SelectedDate,
             StartTime = draftStartTime,
             EndTime = draftEndTime,
-            FieldOrLocation = _draftAktivitetModel.FieldOrLocation,
-            ChangingRoom = _draftAktivitetModel.ChangingRoom,
-            AdditionalNotes = _draftAktivitetModel.AdditionalNotes
+            FieldOrLocation = draftAktivitetModel.FieldOrLocation,
+            ChangingRoom = draftAktivitetModel.ChangingRoom,
+            AdditionalNotes = draftAktivitetModel.AdditionalNotes
         };
         var response = isEditing && !string.IsNullOrWhiteSpace(editingAktivitetId)
             ? await aktivitetApiService.UpdateAsync(editingAktivitetId, request)
@@ -240,7 +240,7 @@
 
     private void ResetDraft()
     {
-        _draftAktivitetModel = new AktivitetModel();
+        draftAktivitetModel = new AktivitetModel();
         editingAktivitetId = null;
         isEditing = false;
         SelectedDate = System.DateTime.Today.ToString("yyyy-MM-dd");
@@ -347,14 +347,14 @@
 
     private IReadOnlyList<DeltagerSvar> GetDeltagere(string? aktivitetId)
     {
-        return aktivitetId is not null && _deltagere.TryGetValue(aktivitetId, out var deltagere)
+        return aktivitetId is not null && this.deltagere.TryGetValue(aktivitetId, out var deltagere)
             ? deltagere
             : [];
     }
 
     private bool IsDeltagereExpanded(string? aktivitetId)
     {
-        return aktivitetId is not null && _expandedActivities.Contains(aktivitetId);
+        return aktivitetId is not null && expandedActivities.Contains(aktivitetId);
     }
 
     private Task HandleAttendingChangedAsync(AktivitetModel aktivitetModel, bool attending)
@@ -385,17 +385,17 @@
 
     private async Task ToggleDeltagere(string aktivitetId)
     {
-        if (_expandedActivities.Contains(aktivitetId))
+        if (expandedActivities.Contains(aktivitetId))
         {
-            _expandedActivities.Remove(aktivitetId);
+            expandedActivities.Remove(aktivitetId);
             return;
         }
-        _expandedActivities.Add(aktivitetId);
+        expandedActivities.Add(aktivitetId);
 
-        if (!_deltagere.ContainsKey(aktivitetId))
+        if (!deltagere.ContainsKey(aktivitetId))
         {
             var list = await deltagerApiService.GetByAktivitetIdAsync(aktivitetId);
-            _deltagere[aktivitetId] = list;
+            deltagere[aktivitetId] = list;
         }
     }
 }
