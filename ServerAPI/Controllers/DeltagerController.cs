@@ -11,7 +11,17 @@ public class DeltagerController : ControllerBase
     private readonly IDeltagerRepository repo;
 
     public DeltagerController(IDeltagerRepository repo) => this.repo = repo;
-    
+
+    [HttpGet("{aktivitetId}")]
+    public async Task<ActionResult<List<DeltagerSvar>>> GetByAktivitetId(string aktivitetId)
+    {
+        if (string.IsNullOrWhiteSpace(aktivitetId))
+            return BadRequest("AktivitetId er påkrævet.");
+
+        var deltagere = await repo.GetByAktivitetIdAsync(aktivitetId);
+        return Ok(deltagere);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Upsert([FromBody] DeltagerSvar deltagerSvar)
     {
