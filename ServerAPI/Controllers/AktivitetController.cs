@@ -74,17 +74,16 @@ public class AktivitetController : ControllerBase
         if (existing is null)
             return NotFound();
 
+        // Bevar eksisterende værdier hvis request ikke sender nye
+        requestModel.Date ??= existing.Date?.ToString("yyyy-MM-dd");
+        requestModel.StartTime ??= existing.StartTime?.ToString("HH:mm");
+        requestModel.EndTime ??= existing.EndTime?.ToString("HH:mm");
+
         var aktivitet = BuildAktivitet(requestModel);
-        aktivitet.StartTime ??= existing.StartTime;
-        aktivitet.EndTime ??= existing.EndTime;
-        aktivitet.Date ??= existing.Date;
         var validationResult = ValidateAktivitet(aktivitet, requestModel);
         if (validationResult is not null)
-        {
             return validationResult;
-        }
 
-        // Gemmer de opdaterede data på den eksisterende aktivitet.
         await repo.UpdateAsync(id, aktivitet);
         return Ok(aktivitet);
     }

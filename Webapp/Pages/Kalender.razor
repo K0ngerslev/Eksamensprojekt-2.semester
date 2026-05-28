@@ -277,6 +277,7 @@
         aktiviteter.Clear();
         var alle = await aktivitetApiService.GetAllAsync();
         aktiviteter.AddRange(alle.Where(a => a.Date >= DateOnly.FromDateTime(DateTime.Today)));
+        // GetAllAsync returnerer nu [] ved fejl i stedet for at kaste exception
     }
 
     private static async Task<List<string>> ReadErrorsAsync(HttpResponseMessage response)
