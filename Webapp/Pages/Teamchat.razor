@@ -4,6 +4,7 @@
 @inject WebApp.Service.TeamchatAPIService TeamchatApiService
 @using WebApp.Service
 @implements IDisposable
+@using Core.Model
 
 <PageTitle>Team Chat</PageTitle>
 
@@ -39,7 +40,7 @@
 </div>
 
 @code {
-    private List<TeamchatAPIService.ChatMessage> messages = new();
+    private List<TeamChatModel> messages = new();
     private string newMessage = "";
     private System.Timers.Timer? timer;
 

@@ -8,7 +8,7 @@ builder.Services.AddScoped<IAktivitetRepository, AktivitetRepository>();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IDeltagerRepository, DeltagerRepository>();
-builder.Services.AddScoped<ChatRepository>();
+builder.Services.AddScoped<TeamchatRepository>();
 
 builder.Services.AddCors(options =>
 {

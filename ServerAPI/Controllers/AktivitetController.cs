@@ -49,10 +49,10 @@ public class AktivitetController : ControllerBase
 
     // Opretter en ny aktivitet ud fra data sendt i request body.
     [HttpPost]
-    public async Task<ActionResult<AktivitetModel>> Create([FromBody] AktivitetRequest request)
+    public async Task<ActionResult<AktivitetModel>> Create([FromBody] AktivitetRequestModel requestModel)
     {
-        var aktivitet = BuildAktivitet(request);
-        var validationResult = ValidateAktivitet(aktivitet, request);
+        var aktivitet = BuildAktivitet(requestModel);
+        var validationResult = ValidateAktivitet(aktivitet, requestModel);
         if (validationResult is not null)
         {
             return validationResult;
@@ -68,17 +68,17 @@ public class AktivitetController : ControllerBase
 
     // Opdaterer en eksisterende aktivitet ud fra id og nye værdier.
     [HttpPut("{id}")]
-    public async Task<ActionResult<AktivitetModel>> Update(string id, [FromBody] AktivitetRequest request)
+    public async Task<ActionResult<AktivitetModel>> Update(string id, [FromBody] AktivitetRequestModel requestModel)
     {
         var existing = await repo.GetByIdAsync(id);
         if (existing is null)
             return NotFound();
 
-        var aktivitet = BuildAktivitet(request);
+        var aktivitet = BuildAktivitet(requestModel);
         aktivitet.StartTime ??= existing.StartTime;
         aktivitet.EndTime ??= existing.EndTime;
         aktivitet.Date ??= existing.Date;
-        var validationResult = ValidateAktivitet(aktivitet, request);
+        var validationResult = ValidateAktivitet(aktivitet, requestModel);
         if (validationResult is not null)
         {
             return validationResult;
@@ -104,7 +104,7 @@ public class AktivitetController : ControllerBase
         return NoContent();
     }
 
-    private ActionResult? ValidateAktivitet(AktivitetModel aktivitetModel, AktivitetRequest request)
+    private ActionResult? ValidateAktivitet(AktivitetModel aktivitetModel, AktivitetRequestModel requestModel)
     {
         NormalizeAktivitet(aktivitetModel);
 
@@ -117,7 +117,7 @@ public class AktivitetController : ControllerBase
             ModelState.AddModelError(nameof(aktivitetModel.ActivityType), "Activitetstypen skal være mellem 2 og 50 tegn.");
         }
 
-        if (string.IsNullOrWhiteSpace(request.Date))
+        if (string.IsNullOrWhiteSpace(requestModel.Date))
         {
             ModelState.AddModelError(nameof(aktivitetModel.Date), "Dato mangler.");
         }
@@ -126,7 +126,7 @@ public class AktivitetController : ControllerBase
             ModelState.AddModelError(nameof(aktivitetModel.Date), "Dato er ugyldig.");
         }
 
-        if (string.IsNullOrWhiteSpace(request.StartTime))
+        if (string.IsNullOrWhiteSpace(requestModel.StartTime))
         {
             ModelState.AddModelError(nameof(aktivitetModel.StartTime), "Starttid mangler.");
         }
@@ -135,7 +135,7 @@ public class AktivitetController : ControllerBase
             ModelState.AddModelError(nameof(aktivitetModel.StartTime), "Starttid er ugyldig.");
         }
 
-        if (string.IsNullOrWhiteSpace(request.EndTime))
+        if (string.IsNullOrWhiteSpace(requestModel.EndTime))
         {
             ModelState.AddModelError(nameof(aktivitetModel.EndTime), "Sluttid mangler.");
         }
@@ -166,17 +166,17 @@ public class AktivitetController : ControllerBase
         return ModelState.IsValid ? null : ValidationProblem(ModelState);
     }
 
-    private static AktivitetModel BuildAktivitet(AktivitetRequest request)
+    private static AktivitetModel BuildAktivitet(AktivitetRequestModel requestModel)
     {
         return new AktivitetModel
         {
-            ActivityType = request.ActivityType,
-            Date = ParseDate(request.Date),
-            StartTime = ParseTime(request.StartTime),
-            EndTime = ParseTime(request.EndTime),
-            FieldOrLocation = request.FieldOrLocation,
-            ChangingRoom = request.ChangingRoom,
-            AdditionalNotes = request.AdditionalNotes
+            ActivityType = requestModel.ActivityType,
+            Date = ParseDate(requestModel.Date),
+            StartTime = ParseTime(requestModel.StartTime),
+            EndTime = ParseTime(requestModel.EndTime),
+            FieldOrLocation = requestModel.FieldOrLocation,
+            ChangingRoom = requestModel.ChangingRoom,
+            AdditionalNotes = requestModel.AdditionalNotes
         };
     }
 

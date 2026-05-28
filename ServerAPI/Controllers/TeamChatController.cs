@@ -1,21 +1,22 @@
 using Microsoft.AspNetCore.Mvc;
+using Core.Model;
 using ServerAPI.Chat;
 
 [ApiController]
 [Route("api/chat")]
-public class TeamchatController : ControllerBase
+public class TeamChatController : ControllerBase
 {
-    private readonly ChatRepository _repository;
+    private readonly TeamchatRepository repository;
 
-    public TeamchatController(ChatRepository repository)
+    public TeamChatController(TeamchatRepository repository)
     {
-        _repository = repository;
+        this.repository = repository;
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<ChatRepository.ChatMessage>>> GetMessages()
+    public async Task<ActionResult<List<TeamChatModel>>> GetMessages()
     {
-        var messages = await _repository.GetMessagesAsync();
+        var messages = await repository.GetMessagesAsync();
         return Ok(messages);
     }
 
@@ -25,7 +26,7 @@ public class TeamchatController : ControllerBase
         if (string.IsNullOrWhiteSpace(dto.User) || string.IsNullOrWhiteSpace(dto.Text))
             return BadRequest("Bruger og besked skal udfyldes");
 
-        await _repository.AddMessageAsync(dto.User, dto.Text);
+        await repository.AddMessageAsync(dto.User, dto.Text);
         return Ok();
     }
 }

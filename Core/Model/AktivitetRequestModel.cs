@@ -1,6 +1,6 @@
 namespace Core.Model;
 
-public class AktivitetRequest
+public class AktivitetRequestModel
 {
     public string? ActivityType { get; set; }
     public string? Date { get; set; }

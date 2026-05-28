@@ -1,23 +1,23 @@
 using MongoDB.Driver;
-using MongoDB.Bson;
+using Core.Model;
 
 namespace ServerAPI.Chat;
 
-public class ChatRepository
+public class TeamchatRepository
 {
-    private readonly IMongoCollection<ChatMessage> _chatMessages;
+    private readonly IMongoCollection<TeamChatModel> _chatMessages;
 
-    public ChatRepository()
+    public TeamchatRepository()
     {
-       
+
         var client = new MongoClient("mongodb+srv://eaaa25mo:1234@cluster0.w8idbf2.mongodb.net/");
 
-        var database = client.GetDatabase("Eksamensprojekt");           
+        var database = client.GetDatabase("Eksamensprojekt");
 
-        _chatMessages = database.GetCollection<ChatMessage>("ChatMessages");  
+        _chatMessages = database.GetCollection<TeamChatModel>("ChatMessages");
     }
 
-    public async Task<List<ChatMessage>> GetMessagesAsync()
+    public async Task<List<TeamChatModel>> GetMessagesAsync()
     {
         return await _chatMessages.Find(_ => true)
             .SortBy(m => m.Time)
@@ -26,7 +26,7 @@ public class ChatRepository
 
     public async Task AddMessageAsync(string user, string text)
     {
-        var message = new ChatMessage
+        var message = new TeamChatModel
         {
             User = user,
             Text = text,
@@ -35,13 +35,5 @@ public class ChatRepository
 
         await _chatMessages.InsertOneAsync(message);
     }
-
-    // Model
-    public class ChatMessage
-    {
-        public ObjectId Id { get; set; }
-        public string User { get; set; } = "";
-        public string Text { get; set; } = "";
-        public DateTime Time { get; set; }
-    }
 }
+    
