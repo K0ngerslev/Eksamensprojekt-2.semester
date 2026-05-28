@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Core.Model;
-using ServerAPI.Chat;
+using ServerAPI.Repositories;
 
 [ApiController]
 [Route("api/chat")]
 public class TeamChatController : ControllerBase
 {
-    private readonly TeamchatRepository repository;
+    private readonly ITeamchatRepository repository;
 
-    public TeamChatController(TeamchatRepository repository)
+    public TeamChatController(ITeamchatRepository repository)
     {
         this.repository = repository;
     }

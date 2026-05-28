@@ -1,9 +1,9 @@
 using MongoDB.Driver;
 using Core.Model;
 
-namespace ServerAPI.Chat;
+namespace ServerAPI.Repositories;
 
-public class TeamchatRepository
+public class TeamchatRepository : ITeamchatRepository
 {
     private readonly IMongoCollection<TeamChatModel> _chatMessages;
 
