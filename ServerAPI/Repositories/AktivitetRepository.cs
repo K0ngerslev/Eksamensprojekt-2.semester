@@ -6,15 +6,12 @@ namespace ServerAPI.Repositories;
 // Repository som håndterer læsning og skrivning af aktiviteter i MongoDB.
 public class AktivitetRepository : IAktivitetRepository
 {
-    // Navnet på den collection i databasen, hvor aktiviteter gemmes.
-    private const string CollectionName = "Aktiviteter";
     // Reference til MongoDB-collectionen med aktiviteter.
     private readonly IMongoCollection<AktivitetModel> aktiviteter;
 
     // Constructor henter den rigtige collection fra databasen.
     public AktivitetRepository()
     {
-        // var client = new MongoClient("mongodb+srv://kongersleva_db_user:ctxdw7xMeDXa6BXQ@annoncer.calyub8.mongodb.net/");
         var client = new MongoClient("mongodb+srv://eaaa25mo:1234@cluster0.w8idbf2.mongodb.net/");
         var database = client.GetDatabase("Eksamensprojekt");
         aktiviteter = database.GetCollection<AktivitetModel>("Aktiviteter");

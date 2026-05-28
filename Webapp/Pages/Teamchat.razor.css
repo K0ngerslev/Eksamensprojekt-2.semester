@@ -220,4 +220,15 @@ p strong {
         min-height: 72px;
         width: 100%;
     }
+    .chat-error {
+        width: min(100%, 1100px);
+        margin: 0 auto 0.5rem;
+        padding: 0.6rem 1rem;
+        border-radius: 12px;
+        background: rgba(185, 56, 56, 0.18);
+        border: 1px solid rgba(185, 56, 56, 0.35);
+        color: #ffb0b0;
+        font-weight: 600;
+        text-shadow: none;
+    }
 }

@@ -24,7 +24,7 @@ public class TeamChatController : ControllerBase
     public async Task<IActionResult> SendMessage([FromBody] SendChatMessageDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.User) || string.IsNullOrWhiteSpace(dto.Text))
-            return BadRequest("Bruger og besked skal udfyldes");
+            return BadRequest(new { detail = "Bruger og besked skal udfyldes." });
 
         await repository.AddMessageAsync(dto.User, dto.Text);
         return Ok();

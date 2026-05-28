@@ -1,6 +1,4 @@
 using Core.Model;
-
-
 namespace WebApp.Service;
 
 public class LoginService
