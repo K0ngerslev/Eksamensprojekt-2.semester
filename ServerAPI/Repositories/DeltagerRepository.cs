@@ -19,11 +19,10 @@ public class DeltagerRepository : IDeltagerRepository
 
     public async Task UpsertAsync(DeltagerSvar deltagerSvar)
     {
-        // En bruger må højst have ét svar pr. aktivitet.
+       //en bruger må højst have ét svar pr. aktivitet
         var filter = Builders<DeltagerSvar>.Filter.Where(p =>
             p.AktivitetId == deltagerSvar.AktivitetId &&
             p.UserName == deltagerSvar.UserName);
-
         var options = new ReplaceOptions { IsUpsert = true };
         await col.ReplaceOneAsync(filter, deltagerSvar, options);
     }

@@ -12,9 +12,11 @@ public class LoginService
     {
         mUsers = [
             new User { Name = "Mo", Password = "1234", Role = "træner" },
-            new User { Name = "Mohammed", Password = "1234", Role="Spiller"},
+            new User { Name = "Mohamed", Password = "1234", Role="Spiller"},
             new User { Name = "Konger", Password = "1234", Role="Spiller"},
-            new User { Name = "Andreas", Password = "1234", Role="træner"}
+            new User { Name = "Andreas", Password = "1234", Role="træner"},
+            new User { Name = "testtræner", Password = "1234", Role="træner"},
+            new User { Name = "testspiller", Password = "1234", Role="Spiller"}
         ];
     }
 
