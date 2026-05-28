@@ -23,7 +23,7 @@ public class DeltagerController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Upsert([FromBody] DeltagerSvar deltagerSvar)
+    public async Task<IActionResult> SaveDeltagerSvar([FromBody] DeltagerSvar deltagerSvar)
     {
         if (string.IsNullOrWhiteSpace(deltagerSvar.AktivitetId) ||
             string.IsNullOrWhiteSpace(deltagerSvar.UserName))
