@@ -11,29 +11,23 @@ builder.Services.AddScoped<ITeamchatRepository, TeamchatRepository>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("policy",
-        policy =>
-        {
-            policy.AllowAnyOrigin();
-            policy.AllowAnyMethod();
-            policy.AllowAnyHeader();
-        });
+    options.AddPolicy("policy", policy =>
+    {
+        policy.AllowAnyOrigin();
+        policy.AllowAnyMethod();
+        policy.AllowAnyHeader();
+    });
 });
 
 var app = builder.Build();
 
-// Konfigurerer HTTP-request-pipelinen.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-app.UseHttpsRedirection();
-
 app.UseCors("policy");
 
-app.UseAuthorization();
+app.UseStaticFiles();
 
 app.MapControllers();
+
+// Manuelt fallback til index.html for Blazor routing
+app.MapFallbackToFile("index.html");
 
 app.Run();
