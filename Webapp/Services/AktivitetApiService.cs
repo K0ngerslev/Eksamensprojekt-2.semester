@@ -6,7 +6,7 @@ namespace WebApp.Service;
 public class AktivitetApiService
 {
     private readonly HttpClient httpClient;
-    private const string Base = "http://localhost:5243/api/Aktivitet";
+    private const string Base = "api/Aktivitet";
 
     public AktivitetApiService(HttpClient httpClient)
     {

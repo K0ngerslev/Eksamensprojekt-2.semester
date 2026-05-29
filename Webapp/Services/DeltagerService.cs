@@ -5,7 +5,7 @@ namespace WebApp.Service;
 
 public class DeltagerApiService(HttpClient httpClient)
 {
-    private const string Base = "http://localhost:5243/api/Deltager";
+    private const string Base = "api/Deltager";
 
     public async Task<List<DeltagerSvar>> GetByAktivitetIdAsync(string aktivitetId)
     {

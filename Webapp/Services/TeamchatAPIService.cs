@@ -5,7 +5,7 @@ namespace WebApp.Service;
 
 public class TeamchatAPIService(HttpClient httpClient)
 {
-    private const string Base = "http://localhost:5243/api/chat";
+    private const string Base = "api/chat";
 
     public async Task<List<TeamChatModel>> GetMessagesAsync()
     {
