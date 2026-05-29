@@ -8,18 +8,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Blazor.Storage" Version="5.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.2" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2"/>
         <PackageReference Include="MongoDB.Driver" Version="3.4.0" />
     </ItemGroup>
+
     <ItemGroup>
         <Content Update="web.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
+
     <ItemGroup>
-      <ProjectReference Include="..\Core\Core.csproj" />
-        <ProjectReference Include="..\Webapp\Webapp.csproj" />
+        <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 
 </Project>
