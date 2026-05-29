@@ -19,5 +19,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseBlazorFrameworkFiles();
-app.MapFallbackToFile("index.html");
+app.UseCors("policy");
+app.UseStaticFiles();
+app.MapControllers();
+
+app.Run();
