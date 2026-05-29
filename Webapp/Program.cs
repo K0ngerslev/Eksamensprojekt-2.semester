@@ -18,3 +18,5 @@ builder.Services.AddScoped<TeamchatAPIService>();
 
 await builder.Build().RunAsync();
 
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? builder.HostEnvironment.BaseAddress;
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
