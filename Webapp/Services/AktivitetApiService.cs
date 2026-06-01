@@ -18,12 +18,17 @@ public class AktivitetApiService
         var response = await httpClient.GetAsync(Base);
         if (!response.IsSuccessStatusCode)
             return [];
-    
+
         var content = await response.Content.ReadAsStringAsync();
         if (string.IsNullOrWhiteSpace(content) || content.TrimStart().StartsWith('<'))
             return [];
-    
-        return System.Text.Json.JsonSerializer.Deserialize<List<AktivitetModel>>(content) ?? [];
+
+        var options = new System.Text.Json.JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        return System.Text.Json.JsonSerializer.Deserialize<List<AktivitetModel>>(content, options) ?? [];
     }
 
     public Task<HttpResponseMessage> AddAsync(AktivitetRequestModel aktivitet)
